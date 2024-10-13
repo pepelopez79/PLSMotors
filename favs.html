@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <link rel="icon" href="images/icono.png" type="image/png">
+    <div id="head"></div>
+</head>
+
+<body class="bg">
+    <!-- Navegación -->
+    <div id="header"></div>
+
+    <!-- Galería 3x3 de anuncios de vehículos favoritos -->
+    <section id="cars" class="bg text-white">
+        <div class="container">
+            <div class="row" id="favorite-vehicle-list">
+                <!-- Vehículos -->
+            </div>
+        </div>
+    </section>
+    
+    <!-- Modal para detalles del vehículo -->
+    <div class="modal fade modal-fullscreen" id="vehicleModal" tabindex="-1" role="dialog" aria-labelledby="vehicleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-fullscreen" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="vehicleModalLabel"></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="container-fluid">
+                        <!-- Imagen del carrusel -->
+                        <div id="miCarrusel" class="carousel slide mb-4" data-ride="carousel">
+                            <div class="carousel-inner">
+                                <!-- Imágenes dinámicas -->
+                            </div>
+                            <a class="carousel-control-prev" href="#miCarrusel" role="button" data-slide="prev">
+                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                <span class="sr-only">Anterior</span>
+                            </a>
+                            <a class="carousel-control-next" href="#miCarrusel" role="button" data-slide="next">
+                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                <span class="sr-only">Siguiente</span>
+                            </a>
+                        </div>
+                        <!-- Detalles del vehículo en una sola columna -->
+                        <div class="modal-details-container">
+                            <ul class="list-unstyled" id="modal-details">
+                                <li><strong>Precio:</strong> <span id="modal-price"></span></li>
+                                <li><strong>Año:</strong> <span id="modal-year"></span></li>
+                                <li><strong>Kilometraje:</strong> <span id="modal-mileage"></span></li>
+                                <li><strong>CV:</strong> <span id="modal-cv"></span></li>
+                                <li><strong>Combustible:</strong> <span id="modal-fuel"></span></li>
+                                <li><strong>Cambio:</strong> <span id="modal-transmission"></span></li>
+                                <li><strong>Provincia:</strong> <span id="modal-province"></span></li>
+                                <li><strong>Ciudad:</strong> <span id="modal-city"></span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+<!-- Footer -->
+<footer>
+    <div id="footer"></div>
+</footer>
+
+<!-- Scripts -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="scripts/script.js"></script>
+<script src="scripts/vehicles.js"></script>
+
+</html>

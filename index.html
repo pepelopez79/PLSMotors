@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <link rel="icon" href="images/icono.png" type="image/png">
+    <div id="head"></div>
+</head>
+
+<body class="bg">
+    <!-- Navegación -->
+    <div id="header"></div>
+
+    <!-- Filtros -->
+    <section id="filters-wrapper" class="bg">
+        <div id="filters" class="box container">
+            <div class="section">
+                <div class="col">
+                    <label for="brand">Marca</label>
+                    <select id="brand" name="brand" onchange="updateModels()">
+                        <option value="all">Todas</option>
+                        <!-- Opciones se generan con JS -->
+                    </select>
+
+                    <label for="model">Modelo</label>
+                    <select id="model" name="model" disabled>
+                        <option value="">Todos</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="divider-vertical"></div>
+            <div class="divider-horizontal"></div>
+
+            <div class="section">
+                <div class="col">
+                    <label for="province">Provincia</label>
+                    <select id="province" name="province" onchange="updateCities()">
+                        <option value="all">Todas</option>
+                        <!-- Opciones se generan con JS -->
+                    </select>
+
+                    <label for="city">Ciudad</label>
+                    <select id="city" name="city" disabled>
+                        <option value="">Todas</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="divider-vertical"></div>
+            <div class="divider-horizontal"></div>
+
+            <div class="section">
+                <div class="col">
+                    <label for="mileage-from">Km Desde</label>
+                    <select id="mileage-from" name="mileage-from">
+                        <!-- Opciones se generan con JS -->
+                    </select>
+
+                    <label for="mileage-to">Km Hasta</label>
+                    <select id="mileage-to" name="mileage-to">
+                        <!-- Opciones se generan con JS -->
+                    </select>
+                </div>
+            </div>
+
+            <div class="divider-vertical"></div>
+            <div class="divider-horizontal"></div>
+
+            <div class="section">
+                <div class="col">
+                    <label for="year-from">Año Desde</label>
+                    <select id="year-from" name="year-from">
+                        <!-- Opciones se generan con JS -->
+                    </select>
+
+                    <label for="year-to">Año Hasta</label>
+                    <select id="year-to" name="year-to">
+                        <!-- Opciones se generan con JS -->
+                    </select>
+                </div>
+            </div>
+
+            <div class="divider-vertical"></div>
+            <div class="divider-horizontal"></div>
+
+            <div class="section">
+                <div class="col">
+                    <label for="horsepower-from">Caballos Desde</label>
+                    <select id="horsepower-from" name="horsepower-from">
+                        <!-- Opciones se generan con JS -->
+                    </select>
+
+                    <label for="horsepower-to">Caballos Hasta</label>
+                    <select id="horsepower-to" name="horsepower-to">
+                        <!-- Opciones se generan con JS -->
+                    </select>
+                </div>
+            </div>
+
+            <div class="divider-vertical"></div>
+            <div class="divider-horizontal"></div>
+
+            <div class="section">
+                <div class="col">
+                    <label for="price-from">Precio Desde</label>
+                    <select id="price-from" name="price-from">
+                        <!-- Opciones se generan con JS -->
+                    </select>
+
+                    <label for="price-to">Precio Hasta</label>
+                    <select id="price-to" name="price-to">
+                        <!-- Opciones se generan con JS -->
+                    </select>
+                </div>
+            </div>
+
+            <div class="divider-vertical"></div>
+            <div class="divider-horizontal"></div>
+
+            <div class="section">
+                <div class="col">
+                    <label for="fuel">Combustible</label>
+                    <select id="fuel" name="fuel">
+                        <!-- Opciones se generan con JS -->
+                    </select>
+            
+                    <label for="transmission">Cambio</label>
+                    <select id="transmission" name="transmission">
+                        <!-- Opciones se generan con JS -->
+                    </select>
+                </div>
+            </div>            
+        </div>
+    </section>
+
+    <!-- Galería 3x3 de anuncios de vehículos -->
+    <section id="cars" class="bg text-white">
+        <div class="container">
+            <div class="row" id="vehicle-list">
+                <!-- Vehículos -->
+            </div>
+            <!-- Controles de paginación -->
+            <nav>
+                <ul class="pagination justify-content-center" id="pagination-controls"></ul>
+            </nav>
+        </div>
+    </section>
+
+    <!-- Modal para detalles del vehículo -->
+    <div class="modal fade modal-fullscreen" id="vehicleModal" tabindex="-1" role="dialog" aria-labelledby="vehicleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-fullscreen" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="vehicleModalLabel"></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="container-fluid">
+                        <!-- Imagen del carrusel -->
+                        <div id="miCarrusel" class="carousel slide mb-4" data-ride="carousel">
+                            <div class="carousel-inner">
+                                <!-- Imágenes dinámicas -->
+                            </div>
+                            <a class="carousel-control-prev" href="#miCarrusel" role="button" data-slide="prev">
+                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                <span class="sr-only">Anterior</span>
+                            </a>
+                            <a class="carousel-control-next" href="#miCarrusel" role="button" data-slide="next">
+                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                <span class="sr-only">Siguiente</span>
+                            </a>
+                        </div>
+                        <!-- Detalles del vehículo en una sola columna -->
+                        <div class="modal-details-container">
+                            <ul class="list-unstyled" id="modal-details">
+                                <li><strong>Precio:</strong> <span id="modal-price"></span></li>
+                                <li><strong>Año:</strong> <span id="modal-year"></span></li>
+                                <li><strong>Kilometraje:</strong> <span id="modal-mileage"></span></li>
+                                <li><strong>CV:</strong> <span id="modal-cv"></span></li>
+                                <li><strong>Combustible:</strong> <span id="modal-fuel"></span></li>
+                                <li><strong>Cambio:</strong> <span id="modal-transmission"></span></li>
+                                <li><strong>Provincia:</strong> <span id="modal-province"></span></li>
+                                <li><strong>Ciudad:</strong> <span id="modal-city"></span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+<!-- Footer -->
+<footer>
+    <div id="footer"></div>
+</footer>
+
+<!-- Scripts -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="scripts/script.js"></script>
+<script src="scripts/filters.js"></script>
+<script src="scripts/vehicles.js"></script>
+
+<!-- Botón volver arriba -->
+<a id="volverArriba" href="#" class="volver-arriba"><i class="fas fa-arrow-up"></i></a>
+
+</html>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <link rel="icon" href="images/icono.png" type="image/png">
+    <div id="head"></div>
+</head>
+
+<body class="bg">
+    <!-- Navegación -->
+    <div id="header"></div>
+
+    <!-- Login y registro de usuarios -->
+    <section id="registro" class="bg">
+        <div class="container">
+            <form class="form-horizontal" id="registroForm">
+                <div class="form-group">
+                    <label for="email" class="control-label" style="color: black;"><b>Email:</b></label>
+                    <div class="text-field">
+                        <input type="email" class="form-control" id="email" placeholder="Ingrese su correo electrónico">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password" class="control-label" style="color: black;"><b>Contraseña:</b></label>
+                    <div class="text-field">
+                        <input type="password" class="form-control" id="password" placeholder="Ingrese su contraseña">
+                    </div>
+                </div>
+
+                <div class="form-group" id="confirmPasswordGroup" style="display: none;">
+                    <label for="confirmPassword" class="control-label" style="color: black;"><b>Confirmar Contraseña:</b></label>
+                    <div class="text-field">
+                        <input type="password" class="form-control" id="confirmPassword" placeholder="Confirme su contraseña">
+                    </div>
+                </div>
+
+                <div class="form-group" id="fechaNacimientoGroup" style="display: none;">
+                    <label for="fechaNacimiento" class="control-label" style="color: black;"><b>Fecha de Nacimiento:</b></label>
+                    <div class="text-field">
+                        <input type="date" class="form-control" id="fechaNacimiento">
+                    </div>
+                </div>
+
+                <div class="form-group" id="direccionGroup" style="display: none;">
+                    <label for="direccion" class="control-label" style="color: black;"><b>Dirección:</b></label>
+                    <div class="text-field">
+                        <input type="text" class="form-control" id="direccion" placeholder="Ingrese su dirección">
+                    </div>
+                </div>
+
+                <div class="form-group" id="codigoPostalGroup" style="display: none;">
+                    <label for="codigoPostal" class="control-label" style="color: black;"><b>Código Postal:</b></label>
+                    <div class="text-field">
+                        <input type="text" class="form-control" id="codigoPostal" placeholder="Ingrese su código postal">
+                    </div>
+                </div>
+
+                <div class="form-group" id="ciudadGroup" style="display: none;">
+                    <label for="ciudad" class="control-label" style="color: black;"><b>Ciudad:</b></label>
+                    <div class="text-field">
+                        <input type="text" class="form-control" id="ciudad" placeholder="Ingrese su ciudad">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-sm-offset-2">
+                        <button type="button" class="btn btn-primary" id="btnVolver" style="display: none;"><b>Volver</b></button>
+                        <button type="button" class="btn btn-primary" id="btnRegistrar"><b>Registrarse</b></button>
+                        <button type="button" class="btn btn-primary" id="btnIniciarSesion"><b>Iniciar Sesión</b></button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </section>
+</body>
+
+<!-- Footer -->
+<footer>
+    <div id="footer"></div>
+</footer>
+
+<!-- Scripts -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="scripts/script.js"></script>
+
+</html>
