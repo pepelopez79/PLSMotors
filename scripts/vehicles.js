@@ -13,7 +13,8 @@ const vehicles = [
         imagenes: [
             "images/cars/bmw-serie3_1.jpg",
             "images/cars/bmw-serie3_2.jpg"
-        ]
+        ],
+        autor: "Pepe López"
     },
     {
         marca: "Audi",
@@ -32,7 +33,8 @@ const vehicles = [
             "images/cars/audi-a3_3.jpg",
             "images/cars/audi-a3_4.jpg",
             "images/cars/audi-a3_5.jpg"
-        ]
+        ],
+        autor: "María Fernández"
     },
     {
         marca: "Mercedes-Benz",
@@ -49,7 +51,8 @@ const vehicles = [
             "images/cars/mercedes-clasec_1.jpg",
             "images/cars/mercedes-clasec_2.jpg",
             "images/cars/mercedes-clasec_3.jpg"
-        ]
+        ],
+        autor: "Pepe López"
     },
     {
         marca: "Audi",
@@ -66,7 +69,8 @@ const vehicles = [
             "images/cars/audi-q5_1.jpg",
             "images/cars/audi-q5_2.jpg",
             "images/cars/audi-q5_3.jpg"
-        ]
+        ],
+        autor: "Luis Martínez"
     },
     {
         marca: "Ford",
@@ -82,7 +86,8 @@ const vehicles = [
         imagenes: [
             "images/cars/ford-fiesta_1.jpg",
             "images/cars/ford-fiesta_2.jpg"
-        ]
+        ],
+        autor: "Ana Gómez"
     },
     {
         marca: "Volkswagen",
@@ -100,7 +105,8 @@ const vehicles = [
             "images/cars/volkswagen-golf_2.jpg",
             "images/cars/volkswagen-golf_3.jpg",
             "images/cars/volkswagen-golf_4.jpg"
-        ]
+        ],
+        autor: "Carlos Sánchez"
     },
     {
         marca: "Seat",
@@ -116,7 +122,8 @@ const vehicles = [
         imagenes: [
             "images/cars/seat-leon_1.jpg",
             "images/cars/seat-leon_2.jpg"
-        ]
+        ],
+        autor: "Pepe López"
     },
     {
         marca: "Skoda",
@@ -133,7 +140,8 @@ const vehicles = [
             "images/cars/skoda-octavia_1.jpg",
             "images/cars/skoda-octavia_2.jpg",
             "images/cars/skoda-octavia_3.jpg"
-        ]
+        ],
+        autor: "Javier Ruiz"
     },
     {
         marca: "Peugeot",
@@ -151,7 +159,8 @@ const vehicles = [
             "images/cars/peugeot-308_2.jpg",
             "images/cars/peugeot-308_3.jpg",
             "images/cars/peugeot-308_4.jpg"
-        ]
+        ],
+        autor: "Sara López"
     },
     {
         marca: "Renault",
@@ -167,7 +176,8 @@ const vehicles = [
         imagenes: [
             "images/cars/renault-megane_1.jpg",
             "images/cars/renault-megane_2.jpg"
-        ]
+        ],
+        autor: "Ana Gómez"
     },
     {
         marca: "Fiat",
@@ -183,7 +193,8 @@ const vehicles = [
         imagenes: [
             "images/cars/fiat-500_1.jpg",
             "images/cars/fiat-500_2.jpg"
-        ]
+        ],
+        autor: "Marta Jiménez"
     },
     {
         marca: "Toyota",
@@ -200,7 +211,8 @@ const vehicles = [
             "images/cars/toyota-corolla_1.jpg",
             "images/cars/toyota-corolla_2.jpg",
             "images/cars/toyota-corolla_3.jpg"
-        ]
+        ],
+        autor: "Roberto Pérez"
     }
 ];
 
@@ -274,17 +286,43 @@ function displayFavoriteVehicles() {
     displayPaginationControls();
 }
 
+// Mostrar mis vehículos (anuncios) de la página actual
+function displayMyVehicles() {
+    const vehicleList = document.getElementById('my-vehicle-list');
+    vehicleList.innerHTML = '';
+
+    // Filtrar los vehículos publicados por ti
+    const myVehicles = vehicles.filter(vehicle => vehicle.autor === "Pepe López");
+
+    const startIndex = (currentPage - 1) * vehiclesPerPage;
+    const endIndex = Math.min(startIndex + vehiclesPerPage, myVehicles.length);
+
+    for (let i = startIndex; i < endIndex; i++) {
+        const vehicle = myVehicles[i];
+        const vehicleCol = createMyVehicleCard(vehicle);
+
+        // Añadir evento de clic para abrir el modal
+        vehicleCol.addEventListener('click', (event) => handleVehicleClick(event, vehicle));
+        
+        vehicleList.appendChild(vehicleCol);
+    }
+
+    displayPaginationControls();
+}
+
 // Crea un elemento de tarjeta para el vehículo
 function createVehicleCard(vehicle) {
     const vehicleCol = document.createElement('div');
     vehicleCol.className = 'col-md-6 col-lg-4 mb-4';
 
+    const isFavorite = favoriteVehicles.some(favorite => favorite.modelo === vehicle.modelo);
+
     vehicleCol.innerHTML = `
         <div class="cars" style="position: relative;">
             <a href="#" class="panel-imagen" data-toggle="modal" data-target="#vehicleModal" data-vehicle='${JSON.stringify(vehicle)}'>
                 <button class="favorite-btn" style="position: absolute; top: 10px; right: 20px; border: none; background: transparent;">
-                    <i class="fas fa-heart fa-lg" aria-hidden="true" style="color: red; position: absolute; top: 0; left: 0;"></i>
-                    <i class="fas fa-heart fa-lg" aria-hidden="true" style="color: white; position: absolute; top: 0; left: 0;"></i>
+                    <i class="fas fa-heart fa-lg" aria-hidden="true" style="color: red; position: absolute; top: 0; left: 0; ${isFavorite ? 'display: inline;' : 'display: none;'}"></i>
+                    <i class="fas fa-heart fa-lg" aria-hidden="true" style="color: white; position: absolute; top: 0; left: 0; ${isFavorite ? 'display: none;' : 'display: inline;'}"></i>
                     <i class="far fa-heart fa-lg" aria-hidden="true" style="color: black; position: absolute; top: 0; left: 0;"></i>
                 </button>
                 <img src="${vehicle.imagenes[0]}" class="img-fluid" alt="${vehicle.marca} ${vehicle.modelo} en venta">
@@ -302,6 +340,62 @@ function createVehicleCard(vehicle) {
     });
 
     return vehicleCol;
+}
+
+// Crea un elemento de tarjeta para el vehículo
+function createMyVehicleCard(vehicle) {
+    const vehicleCol = document.createElement('div');
+    vehicleCol.className = 'col-md-6 col-lg-4 mb-4';
+
+    vehicleCol.innerHTML = `
+        <div class="cars" style="position: relative;">
+            <a href="#" class="panel-imagen" data-toggle="modal" data-target="#vehicleModal" data-vehicle='${JSON.stringify(vehicle)}'>
+                <img src="${vehicle.imagenes[0]}" class="img-fluid" alt="${vehicle.marca} ${vehicle.modelo} en venta">
+                <h5>${vehicle.marca} ${vehicle.modelo}</h5>
+                <p>${vehicle.ciudad} | ${vehicle.combustible} | ${vehicle.ano} | ${vehicle.kilometraje}</p>
+                <h3 class="text-primary font-weight-bold">${vehicle.precio}</h3>
+                <div class="action-buttons" style="position: absolute; top: 10px; right: 20px;">
+                    <button class="edit-btn" style="border: none; background: transparent; position: relative;" title="Editar">
+                        <i class="fas fa-edit fa-lg" style="color: blue; position: absolute; top: -10px; left: -15px;"></i>
+                        <i class="far fa-edit fa-lg" style="color: black; position: absolute; top: -10px; left: -15px;"></i>
+                    </button>
+                    <button class="delete-btn" style="border: none; background: transparent; position: relative;" title="Eliminar">
+                        <i class="fas fa-trash fa-lg" style="color: red; position: absolute; top: -10px; left: 0;"></i>
+                        <i class="far fa-trash-alt fa-lg" style="color: black; position: absolute; top: -10px; left: 0;"></i>
+                    </button>
+                </div>
+            </a>
+        </div>
+    `;
+
+    // Animación
+    const editBtn = vehicleCol.querySelector('.edit-btn');
+    const deleteBtn = vehicleCol.querySelector('.delete-btn');
+
+    editBtn.classList.add('animate-btn');
+    deleteBtn.classList.add('animate-btn');
+
+    // Evento para editar el vehículo
+    editBtn.addEventListener('click', (event) => {
+        event.stopPropagation();
+        editVehicle(vehicle);
+    });
+
+    // Evento para eliminar el vehículo
+    deleteBtn.addEventListener('click', (event) => {
+        event.stopPropagation();
+        deleteVehicle(vehicle);
+    });
+
+    return vehicleCol;
+}
+
+function editVehicle(vehicle) {
+    // Lógica para editar el vehículo (abrir un modal, llenar un formulario, etc.)
+}
+
+function deleteVehicle(vehicle) {
+    // Lógica para eliminar el vehículo (confirmar y eliminar de la lista)
 }
 
 // Maneja el clic en un vehículo y abre el modal
@@ -322,6 +416,7 @@ function openVehicleModal(vehicleData) {
     document.getElementById('modal-city').innerText = vehicleData.ciudad;
     document.getElementById('modal-fuel').innerText = vehicleData.combustible;
     document.getElementById('modal-transmission').innerText = vehicleData.transmision;
+    document.getElementById('modal-author').innerText = vehicleData.autor;
 
     // Actualizar el carrusel con las imágenes del vehículo
     updateCarouselImages(vehicleData.imagenes);
@@ -412,6 +507,7 @@ function displayPaginationControls() {
             event.preventDefault();
             currentPage = i;
             displayVehicles();
+            displayMyVehicles();
             displayFavoriteVehicles();
             const carsSection = document.getElementById('cars');
             carsSection.scrollIntoView({ behavior: 'smooth' });
@@ -423,4 +519,5 @@ function displayPaginationControls() {
 }
 
 document.addEventListener('DOMContentLoaded', displayVehicles);
+document.addEventListener('DOMContentLoaded', displayMyVehicles);
 document.addEventListener('DOMContentLoaded', displayFavoriteVehicles);

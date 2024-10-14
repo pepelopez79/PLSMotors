@@ -243,6 +243,22 @@ section:hover h2::before {
     outline: none;
 }
 
+.edit-btn:focus {
+    outline: none;
+}
+
+.delete-btn:focus {
+    outline: none;
+}
+
+.animate-btn {
+    transition: transform 0.2s ease;
+}
+
+.animate-btn:active {
+    transform: scale(0.95);
+}
+
 @keyframes pulse {
     0% {
         transform: scale(1);
