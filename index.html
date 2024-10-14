@@ -12,6 +12,18 @@
     <!-- Filtros -->
     <section id="filters-wrapper" class="bg">
         <div id="filters" class="box container">
+            <!-- Resetear Filtros -->
+            <div class="reset-filters" style="position: absolute; top: 10px; right: 40px;">
+                <button id="reset-filters-btn" title="Restablecer filtros" style="border: none; background: transparent; outline: none;">
+                    <i class="fas fa-sync reset-icon" style="color: black;"></i>
+                </button>
+            </div>     
+            <!-- Búsqueda -->
+            <div class="search-icon animate-btn" style="position: absolute; top: 10px; right: 10px;">
+                <button id="search-btn" title="Buscar" style="border: none; background: transparent; outline: none;">
+                    <i class="fas fa-search" style="color: black;"></i>
+                </button>
+            </div>       
             <div class="section">
                 <div class="col">
                     <label for="brand">Marca</label>
@@ -40,7 +52,7 @@
 
                     <label for="city">Ciudad</label>
                     <select id="city" name="city" disabled>
-                        <option value="">Todas</option>
+                        <option value="all">Todas</option>
                     </select>
                 </div>
             </div>

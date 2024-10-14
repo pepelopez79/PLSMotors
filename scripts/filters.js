@@ -3,6 +3,72 @@ const generateOptions = (array, name) => {
     return array.map(item => `<option value="${item.toLowerCase().replace(/\s+/g, '_')}">${item}</option>`).join('');
 };
 
+document.getElementById('search-btn').addEventListener('click', function() {
+    // Lógica de la búsqueda filtrada
+});
+
+// Almacenar valores por defecto
+const defaultValues = {
+    brand: 'all',
+    model: '',
+    province: 'all',
+    city: 'all',
+    mileageFrom: '0',
+    mileageTo: '300000',
+    yearFrom: '2024',
+    yearTo: '1980',
+    horsepowerFrom: '0',
+    horsepowerTo: '500',
+    priceFrom: '0',
+    priceTo: '200000',
+    fuel: 'all',
+    transmission: 'all'
+};
+
+// Función para reiniciar todos los filtros
+function resetFilters() {
+    // Reiniciar marca y modelo
+    document.getElementById('brand').value = defaultValues.brand;
+    document.getElementById('model').disabled = true;
+    document.getElementById('model').value = defaultValues.model;
+
+    // Reiniciar provincia y ciudad
+    document.getElementById('province').value = defaultValues.province;
+    document.getElementById('city').disabled = true;
+    document.getElementById('city').value = defaultValues.city;
+
+    // Reiniciar kilometraje
+    document.getElementById('mileage-from').value = defaultValues.mileageFrom;
+    document.getElementById('mileage-to').value = defaultValues.mileageTo;
+
+    // Reiniciar año
+    document.getElementById('year-from').value = defaultValues.yearFrom;
+    document.getElementById('year-to').value = defaultValues.yearTo;
+
+    // Reiniciar caballos
+    document.getElementById('horsepower-from').value = defaultValues.horsepowerFrom;
+    document.getElementById('horsepower-to').value = defaultValues.horsepowerTo;
+
+    // Reiniciar precio
+    document.getElementById('price-from').value = defaultValues.priceFrom;
+    document.getElementById('price-to').value = defaultValues.priceTo;
+
+    // Reiniciar combustible y transmisión
+    document.getElementById('fuel').value = defaultValues.fuel;
+    document.getElementById('transmission').value = defaultValues.transmission;
+}
+
+document.getElementById('reset-filters-btn').addEventListener('click', function() {
+    const icon = document.querySelector('.reset-icon');
+    icon.classList.add('rotate');
+
+    setTimeout(() => {
+        icon.classList.remove('rotate');
+    }, 600);
+});
+
+document.getElementById('reset-filters-btn').addEventListener('click', resetFilters);
+
 // Marcas
 const brands = [
     "Audi", "BMW", "Mercedes Benz", "Volkswagen", "Ford", "Toyota", "Honda", "Peugeot",
