@@ -58,16 +58,17 @@ function resetFilters() {
     document.getElementById('transmission').value = defaultValues.transmission;
 }
 
+// Unir la animación del icono y la reinicialización de filtros en un solo event listener
 document.getElementById('reset-filters-btn').addEventListener('click', function() {
     const icon = document.querySelector('.reset-icon');
     icon.classList.add('rotate');
+
+    resetFilters(); // Llamar a la función resetFilters aquí
 
     setTimeout(() => {
         icon.classList.remove('rotate');
     }, 600);
 });
-
-document.getElementById('reset-filters-btn').addEventListener('click', resetFilters);
 
 // Marcas
 const brands = [
