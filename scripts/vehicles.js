@@ -368,21 +368,14 @@ function createMyVehicleCard(vehicle) {
         </div>
     `;
 
-    // Animación
-    const editBtn = vehicleCol.querySelector('.edit-btn');
-    const deleteBtn = vehicleCol.querySelector('.delete-btn');
-
-    editBtn.classList.add('animate-btn');
-    deleteBtn.classList.add('animate-btn');
-
-    // Evento para editar el vehículo
-    editBtn.addEventListener('click', (event) => {
+    // Modal de edición del anuncio
+    vehicleCol.querySelector('.edit-btn').addEventListener('click', (event) => {
         event.stopPropagation();
-        editVehicle(vehicle);
+        openEditModal(vehicle);
     });
 
-    // Evento para eliminar el vehículo
-    deleteBtn.addEventListener('click', (event) => {
+    // Modal de eliminar el anuncio
+    vehicleCol.querySelector('.delete-btn').addEventListener('click', (event) => {
         event.stopPropagation();
         deleteVehicle(vehicle);
     });
@@ -390,15 +383,35 @@ function createMyVehicleCard(vehicle) {
     return vehicleCol;
 }
 
-function editVehicle(vehicle) {
-    // Lógica para editar el vehículo (abrir un modal, llenar un formulario, etc.)
+function openEditModal(vehicle) {
+    const editModal = document.getElementById('editVehicleModal');
+    const form = editModal.querySelector('form');
+
+    form.elements['marca'].value = vehicle.marca;
+    form.elements['modelo'].value = vehicle.modelo;
+    form.elements['ano'].value = vehicle.ano;
+    form.elements['kilometraje'].value = vehicle.kilometraje;
+    form.elements['cv'].value = vehicle.cv;
+    form.elements['precio'].value = vehicle.precio;
+    form.elements['provincia'].value = vehicle.provincia;
+    form.elements['ciudad'].value = vehicle.ciudad;
+    form.elements['combustible'].value = vehicle.combustible;
+    form.elements['transmision'].value = vehicle.transmision;
+
+    $(editModal).modal('show');
+
+    editModal.dataset.vehicleId = vehicle.modelo;
 }
 
 function deleteVehicle(vehicle) {
-    // Lógica para eliminar el vehículo (confirmar y eliminar de la lista)
+    if (confirm(`¿Estás seguro de que quieres eliminar el vehículo ${vehicle.modelo}?`)) {
+        vehicles = vehicles.filter(v => v.modelo !== vehicle.modelo);
+        
+        displayMyVehicles();
+        alert(`Vehículo ${vehicle.modelo} eliminado con éxito.`);
+    }
 }
 
-// Maneja el clic en un vehículo y abre el modal
 function handleVehicleClick(event, vehicle) {
     if (event.target.closest('.panel-imagen')) {
         openVehicleModal(vehicle);
@@ -418,7 +431,6 @@ function openVehicleModal(vehicleData) {
     document.getElementById('modal-transmission').innerText = vehicleData.transmision;
     document.getElementById('modal-author').innerText = vehicleData.autor;
 
-    // Actualizar el carrusel con las imágenes del vehículo
     updateCarouselImages(vehicleData.imagenes);
 }
 
@@ -521,3 +533,30 @@ function displayPaginationControls() {
 document.addEventListener('DOMContentLoaded', displayVehicles);
 document.addEventListener('DOMContentLoaded', displayMyVehicles);
 document.addEventListener('DOMContentLoaded', displayFavoriteVehicles);
+
+document.getElementById('editVehicleModal').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    const form = event.target;
+    const vehicleId = this.dataset.vehicleId;
+
+    const vehicleIndex = vehicles.findIndex(vehicle => vehicle.modelo === vehicleId);
+
+    if (vehicleIndex !== -1) {
+        vehicles[vehicleIndex].marca = form.marca.value;
+        vehicles[vehicleIndex].modelo = form.modelo.value;
+        vehicles[vehicleIndex].ano = form.ano.value;
+        vehicles[vehicleIndex].kilometraje = form.kilometraje.value;
+        vehicles[vehicleIndex].cv = form.cv.value;
+        vehicles[vehicleIndex].precio = form.precio.value;
+        vehicles[vehicleIndex].provincia = form.provincia.value;
+        vehicles[vehicleIndex].ciudad = form.ciudad.value;
+        vehicles[vehicleIndex].combustible = form.combustible.value;
+        vehicles[vehicleIndex].transmision = form.transmision.value;
+
+        displayMyVehicles();
+
+        $(this).modal('hide');
+        alert(`Vehículo ${vehicles[vehicleIndex].modelo} editado con éxito.`);
+    }
+});
