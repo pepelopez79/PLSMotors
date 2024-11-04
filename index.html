@@ -52,7 +52,7 @@
 
                     <label for="city">Ciudad</label>
                     <select id="city" name="city" disabled>
-                        <option value="all">Todas</option>
+                        <option value="">Todas</option>
                     </select>
                 </div>
             </div>
@@ -144,17 +144,18 @@
         </div>
     </section>
 
-    <!-- Galería 3x3 de anuncios de vehículos -->
+    <!-- Publicaciones -->
     <section id="cars" class="bg text-white">
-        <div class="container">
-            <div class="row" id="vehicle-list">
-                <!-- Vehículos -->
-            </div>
+        <div id="loading" class="loading" style="display: none;">
+            <div class="loader container"></div>
+        </div>
+        <div id="publicaciones">
+            <div class="container"></div>
             <!-- Controles de paginación -->
             <nav>
-                <ul class="pagination justify-content-center" id="pagination-controls"></ul>
+                <ul id="pagination" class="pagination justify-content-center"></ul>
             </nav>
-        </div>
+        </div>    
     </section>
 
     <!-- Modal para detalles del vehículo -->
@@ -183,19 +184,33 @@
                                 <span class="sr-only">Siguiente</span>
                             </a>
                         </div>
-                        <!-- Detalles del vehículo en una sola columna -->
+                        <!-- Detalles del vehículo y del usuario -->
                         <div class="modal-details-container">
-                            <ul class="list-unstyled" id="modal-details">
-                                <li><strong>Precio:</strong> <span id="modal-price"></span></li>
-                                <li><strong>Año:</strong> <span id="modal-year"></span></li>
-                                <li><strong>Kilometraje:</strong> <span id="modal-mileage"></span></li>
-                                <li><strong>CV:</strong> <span id="modal-cv"></span></li>
-                                <li><strong>Combustible:</strong> <span id="modal-fuel"></span></li>
-                                <li><strong>Cambio:</strong> <span id="modal-transmission"></span></li>
-                                <li><strong>Provincia:</strong> <span id="modal-province"></span></li>
-                                <li><strong>Ciudad:</strong> <span id="modal-city"></span></li>
-                                <li><strong>Autor:</strong> <span id="modal-author"></span></li>
-                            </ul>
+                            <div id="modal-details">
+                                <h4><strong>Datos del Vehículo:</strong></h4>
+                                <p>Marca: <span id="modal-marca">${vehiculo ? vehiculo.marca : 'No disponible'}</span></p>
+                                <p>Modelo: <span id="modal-modelo">${vehiculo ? vehiculo.modelo : 'No disponible'}</span></p>
+                                <p>Motor: <span id="modal-motor">${vehiculo ? vehiculo.motor : 'No disponible'}</span></p>
+                                <p>Año: <span id="modal-year">${vehiculo ? vehiculo.ano : 'No disponible'}</span></p>
+                                <p>Kilometraje: <span id="modal-mileage">${vehiculo ? vehiculo.kilometraje : 'No disponible'}</span></p>
+                                <p>CV: <span id="modal-cv">${vehiculo ? vehiculo.cv : 'No disponible'}</span></p>
+                                <p>Precio: <span id="modal-price">${vehiculo ? vehiculo.precio : 'No disponible'}</span></p>
+                                <p>Provincia: <span id="modal-province">${vehiculo ? vehiculo.provincia : 'No disponible'}</span></p>
+                                <p>Ciudad: <span id="modal-city">${vehiculo ? vehiculo.ciudad : 'No disponible'}</span></p>
+                                <p>Combustible: <span id="modal-fuel">${vehiculo ? vehiculo.combustible : 'No disponible'}</span></p>
+                                <p>Transmisión: <span id="modal-transmission">${vehiculo ? vehiculo.transmision : 'No disponible'}</span></p>
+                                <p>Imágenes:</p>
+                                <div class="imagenes-vehiculo">
+                                    ${vehiculo ? vehiculo.imagenes.map(url => `<img src="${url}" alt="Imagen del vehículo" style="width: 100px; height: auto; margin-right: 10px;" />`).join('') : '<p>No se pudo obtener imágenes del vehículo.</p>'}
+                                </div>
+                                <hr />
+                                ${usuario ? 
+                                    `<h4><strong>Datos del Usuario:</strong></h4>
+                                    <p>Nombre: ${usuario.nombre}</p>
+                                    <p>Email: ${usuario.email}</p>
+                                    <p>Teléfono: ${usuario.telefono}</p>` 
+                                    : '<p>No se pudo obtener información del usuario.</p>'}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -214,8 +229,9 @@
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script src="scripts/script.js"></script>
+<script src="scripts/data.js"></script>
 <script src="scripts/filters.js"></script>
-<script src="scripts/vehicles.js"></script>
+<script src="scripts/publications.js"></script>
 
 <!-- Botón volver arriba -->
 <a id="volverArriba" href="#" class="volver-arriba"><i class="fas fa-arrow-up"></i></a>

@@ -131,6 +131,20 @@ section:hover h2::before {
     transform: scale(1.05);
 }
 
+/* Messages */
+.mensaje {
+    text-align: center;
+    font-size: 1.2em;
+    color: #000000;
+    margin-top: 20px;
+    margin-bottom: 50px;
+    padding: 15px;
+    border: 2px solid #f00;
+    border-radius: 8px;
+    background-color: #ffe5e5;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
 /* Filters */
 #filters {
     position: relative;
@@ -263,6 +277,38 @@ section:hover h2::before {
     border-radius: 15px;
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
     margin-bottom: 20px;
+    min-height: 400px;
+}
+
+.vehicle-image {
+    max-width: 100px;
+    margin: 5px;
+}
+
+.loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    position: fixed;
+    width: 100%;
+    left: 0;
+    z-index: 1000;
+}
+
+.loader {
+    border: 6px solid rgb(255, 255, 255);
+    border-top: 6px solid #3498db;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    animation: spin 1s linear infinite;
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(1800deg); }
 }
 
 .favorite-animation {
@@ -345,6 +391,7 @@ section:hover h2::before {
     line-height: 1.5;
     overflow: hidden;
     margin: 5px;
+    padding-inline: 10px;
     text-align: center;
 }
 
@@ -454,7 +501,7 @@ form {
 label {
     display: block;
     font-size: 16px;
-    color: #fff;
+    color: #000000;
     margin-bottom: 5px;
     margin-top: 15px;
     padding: 5px;
