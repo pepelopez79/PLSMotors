@@ -408,7 +408,7 @@ function crearTarjetaVacia(dniUsuarioActual) {
     vehicleCol.className = 'col-md-6 col-lg-4 mb-4';
     vehicleCol.innerHTML = `
         <div class="cars panel-imagen" style="position: relative; display: flex; align-items: center; justify-content: center; cursor: pointer;">
-            <i class="fas fa-plus fa-3x" style="color: green;"></i>
+            <i class="fas fa-plus fa-4x" style="color: green;"></i>
         </div>
     `;
 
@@ -420,38 +420,78 @@ function crearTarjetaVacia(dniUsuarioActual) {
     return vehicleCol;
 }
 
-// Abre el modal de creación de vehículo y maneja el envío del formulario
+// Función para abrir el modal de creación de vehículo y manejar el envío del formulario
 function abrirModalCrearVehiculo(dniUsuarioActual) {
     const createModal = document.getElementById('createVehicleModal');
     const form = createModal.querySelector('form');
 
-    // Configura el evento de envío del formulario de creación
     form.onsubmit = async (event) => {
-        event.preventDefault(); // Evita el envío por defecto del formulario
+        event.preventDefault();
 
-        console.log("Formulario de creación enviado."); // Log para verificar envío del formulario
-
-        // Validar campos antes de enviar
-        const valid = validarCampos(form);
+        const valid = validarCampos(form, true);
         if (!valid) {
-            console.log("Validación fallida"); // Log si la validación falla
             return;
         }
 
-        // Llama a la función para crear el vehículo y luego la publicación
         await crearVehiculoYPublicacion(form, dniUsuarioActual);
     };
 
-    // Evita el envío al presionar Enter
     form.addEventListener('keypress', (event) => {
         if (event.key === 'Enter') {
             event.preventDefault();
         }
     });
 
-    // Muestra el modal
-    console.log("Mostrando modal de creación"); // Log al abrir el modal
     $(createModal).modal('show');
+}
+
+// Función para validar los campos del modal
+function validarCampos(form, isCreating) {
+    const requiredFields = [
+        'marca',
+        'modelo',
+        'motor',
+        'ano',
+        'kilometraje',
+        'cv',
+        'precio',
+        'provincia',
+        'ciudad',
+        'combustible',
+        'transmision'
+    ];
+
+    if (isCreating) {
+        requiredFields.unshift('matricula');
+    }
+
+    let valid = true;
+
+    requiredFields.forEach(field => {
+        const input = form.elements[field];
+        if (!input.value.trim()) {
+            valid = false;
+            input.style.borderColor = 'red';
+            input.setAttribute('title', `${input.name} es obligatorio.`);
+        } else {
+            input.style.borderColor = '';
+            input.removeAttribute('title');
+        }
+    });
+
+    // Validar matrícula solo al crear vehículo
+    if (isCreating) {
+        const matriculaInput = form.elements['matricula'];
+        const matriculaRegex = /^[0-9]{4}[A-Z]{3}$/; // Formato 1234ABC
+        if (!matriculaRegex.test(matriculaInput.value)) {
+            valid = false;
+            matriculaInput.style.borderColor = 'red';
+            matriculaInput.setAttribute('title', 'La matrícula debe ser en el formato 1234ABC');
+            alert('La matrícula debe ser en el formato 1234ABC')
+        }
+    }
+
+    return valid;
 }
 
 // Función para crear un vehículo y luego una publicación
@@ -470,13 +510,12 @@ async function crearVehiculoYPublicacion(form, dniUsuarioActual) {
         combustible: form.elements['combustible'].value,
         transmision: form.elements['transmision'].value,
         imagenes: [
-                "images/cars/ford-fiesta_1.jpg",
-                "images/cars/ford-fiesta_2.jpg"
-            ]
+            "images/cars/ford-fiesta_1.jpg",
+            "images/cars/ford-fiesta_2.jpg"
+        ]
     };
 
     console.log("Datos del vehículo a enviar:", vehicleData);
-
     try {
         const createVehicleResponse = await fetch('https://plsmotors-api.onrender.com/vehiculos', {
             method: 'POST',
@@ -485,27 +524,25 @@ async function crearVehiculoYPublicacion(form, dniUsuarioActual) {
             },
             body: JSON.stringify(vehicleData)
         });
-
-        console.log("Respuesta de creación de vehículo:", createVehicleResponse);
-
+            
         if (!createVehicleResponse.ok) {
-            const errorResponse = await createVehicleResponse.json();
-            console.error("Error al crear el vehículo:", errorResponse);
-            throw new Error(`Error al crear el vehículo: ${errorResponse.message || createVehicleResponse.statusText}`);
+            // Manejo de errores específicos basado la respuesta de la API
+            if (createVehicleResponse.status === 409) {
+                alert("Ya existe una publicación para el vehículo con la matrícula introducida");
+            } else {
+                alert("Error al crear el vehículo");
+            }
+            return;
         }
-
-        const createdVehicle = await createVehicleResponse.json();
-        console.log("Vehículo creado con éxito:", createdVehicle);
-
+    
         await crearPublicacion(vehicleData.matricula, dniUsuarioActual);
-
+    
         $('#createVehicleModal').modal('hide');
         location.reload();
-
+    
     } catch (error) {
-        console.error("Error al crear el vehículo o la publicación:", error);
         alert('No se pudo crear el vehículo. Inténtalo de nuevo más tarde.');
-    }
+    }    
 }
 
 // Función para crear una publicación
@@ -541,11 +578,11 @@ async function crearPublicacion(matriculaVehiculo, dniUsuarioActual) {
     }
 }
 
+// Función para abrir el modal de editar
 function abrirModalEditar(vehicle) {
     const editModal = document.getElementById('editVehicleModal');
     const form = editModal.querySelector('form');
 
-    // Asigna los valores del vehículo a los campos del formulario
     form.elements['marca'].value = vehicle.marca;
     form.elements['modelo'].value = vehicle.modelo;
     form.elements['motor'].value = vehicle.motor;
@@ -558,7 +595,6 @@ function abrirModalEditar(vehicle) {
     form.elements['combustible'].value = vehicle.combustible;
     form.elements['transmision'].value = vehicle.transmision;
 
-    // Agrega las imágenes al modal
     const imageContainer = editModal.querySelector('.image-container');
     imageContainer.innerHTML = ''; 
     vehicle.imagenes.forEach(src => {
@@ -569,61 +605,24 @@ function abrirModalEditar(vehicle) {
         imageContainer.appendChild(img);
     });
 
-    // Configura el evento para el formulario de edición
     form.onsubmit = async (event) => {
-        event.preventDefault(); // Prevenir el envío por defecto del formulario
+        event.preventDefault();
 
-        // Validar campos antes de enviar
         const valid = validarCampos(form);
         if (!valid) return;
 
         console.log("Formulario de edición enviado.");
-        // Llama a actualizarDatosVehiculo para actualizar el vehículo
         await actualizarDatosVehiculo(form, vehicle);
     };
 
-    // Evitar el envío al presionar Enter
     form.addEventListener('keypress', (event) => {
         if (event.key === 'Enter') {
             event.preventDefault();
         }
     });
 
-    // Muestra el modal
     $(editModal).modal('show');
     editModal.dataset.vehicleId = vehicle.matricula;
-}
-
-function validarCampos(form) {
-    const requiredFields = [
-        'marca',
-        'modelo',
-        'motor',
-        'ano',
-        'kilometraje',
-        'cv',
-        'precio',
-        'provincia',
-        'ciudad',
-        'combustible',
-        'transmision'
-    ];
-
-    let valid = true;
-
-    requiredFields.forEach(field => {
-        const input = form.elements[field];
-        if (!input.value.trim()) {
-            valid = false;
-            input.style.borderColor = 'red';
-            input.setAttribute('title', `${input.name} es obligatorio.`);
-        } else {
-            input.style.borderColor = '';
-            input.removeAttribute('title');
-        }
-    });
-
-    return valid;
 }
 
 async function actualizarDatosVehiculo(form, vehicle) {
@@ -643,17 +642,16 @@ async function actualizarDatosVehiculo(form, vehicle) {
         imagenes: vehicle.imagenes
     };
 
-    // Verifica si los valores han cambiado
     const isChanged = Object.keys(newValues).some(key => newValues[key] !== vehicle[key]);
     if (!isChanged) {
+        alert("No se han realizado cambios en los datos del vehículo.");
         console.log("No hay cambios para actualizar.");
-        return; // No hace nada si no hay cambios
+        return;
     }
 
     try {
         console.log(`Actualizando datos para el vehículo con matrícula: ${vehicle.matricula}`);
 
-        // Realiza la solicitud PUT para actualizar el vehículo con los datos del formulario
         const updateResponse = await fetch(`https://plsmotors-api.onrender.com/vehiculos/${vehicle.matricula}`, {
             method: 'PUT',
             headers: {
@@ -670,7 +668,6 @@ async function actualizarDatosVehiculo(form, vehicle) {
         const updatedData = await updateResponse.json();
         console.log("Vehículo actualizado con éxito:", updatedData);
         
-        // Cierra el modal
         $('#editVehicleModal').modal('hide');
         location.reload();
     } catch (updateError) {
