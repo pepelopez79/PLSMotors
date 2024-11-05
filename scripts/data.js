@@ -64,10 +64,19 @@ const models = {
     ds: ["3", "4", "7", "7 Crossback"]
 };
 
+// Rellenar las marcas en el desplegable
+const brandSelect = document.getElementById("brand");
+brands.forEach(function(brand) {
+    const option = document.createElement("option");
+    option.value = brand;
+    option.textContent = brand;
+    brandSelect.appendChild(option);
+});
+
+// Actualizar modelos al seleccionar una marca
 function updateModels() {
-    const brandSelect = document.getElementById("brand");
     const modelSelect = document.getElementById("model");
-    const selectedBrand = brandSelect.value;
+    const selectedBrand = brandSelect.value.toLowerCase().replace(/\s+/g, '_');
 
     modelSelect.innerHTML = '<option value="">Selecciona un modelo</option>';
     modelSelect.disabled = false;
@@ -75,7 +84,7 @@ function updateModels() {
     if (selectedBrand in models) {
         models[selectedBrand].forEach(function(model) {
             const option = document.createElement("option");
-            option.value = model.toLowerCase().replace(/\s+/g, '-'); 
+            option.value = model;
             option.textContent = model;
             modelSelect.appendChild(option);
         });
@@ -91,55 +100,64 @@ const provinces = [
     "Cantabria", "Islas Baleares", "Islas Canarias", "Ceuta y Melilla"
 ];
 
+// Rellenar el select de provincias con valores capitalizados
+const provinceSelect = document.getElementById("province");
+provinces.forEach(function(province) {
+    const option = document.createElement("option");
+    option.value = province;
+    option.textContent = province;
+    provinceSelect.appendChild(option);
+});
+
 // Ciudades
 function updateCities() {
-    const province = document.getElementById('province').value.toLowerCase().replace(/\s+/g, '_');
+    const province = document.getElementById('province').value;
     const citySelect = document.getElementById('city');
 
     citySelect.innerHTML = '<option value="">Selecciona una ciudad</option>';
 
     let cities = [];
-    if (province === 'andalucía') {
+    if (province === 'Andalucía') {
         cities = ['Sevilla', 'Málaga', 'Granada', 'Cádiz', 'Córdoba', 'Almería', 'Jaén', 'Huelva'];
-    } else if (province === 'cataluña') {
+    } else if (province === 'Cataluña') {
         cities = ['Barcelona', 'Girona', 'Tarragona', 'Lleida', 'Badalona', 'Sabadell', 'Terrassa', 'Mataró'];
-    } else if (province === 'valencia') {
+    } else if (province === 'Valencia') {
         cities = ['Valencia', 'Alicante', 'Castellón', 'Elche', 'Gandía', 'Orihuela', 'Torrent'];
-    } else if (province === 'madrid') {
+    } else if (province === 'Madrid') {
         cities = ['Madrid', 'Alcalá de Henares', 'Móstoles', 'Getafe', 'Fuenlabrada'];
-    } else if (province === 'país_vasco') {
+    } else if (province === 'País Vasco') {
         cities = ['Bilbao', 'San Sebastián', 'Vitoria-Gasteiz', 'Barakaldo', 'Irun', 'Portugalete'];
-    } else if (province === 'galicia') {
+    } else if (province === 'Galicia') {
         cities = ['Santiago de Compostela', 'A Coruña', 'Vigo', 'Lugo', 'Ourense'];
-    } else if (province === 'castilla_y_león') {
+    } else if (province === 'Castilla y León') {
         cities = ['Valladolid', 'Burgos', 'Salamanca', 'León', 'Segovia'];
-    } else if (province === 'castilla_la_mancha') {
+    } else if (province === 'Castilla La Mancha') {
         cities = ['Toledo', 'Albacete', 'Ciudad Real', 'Cuenca', 'Guadalajara'];
-    } else if (province === 'murcia') {
+    } else if (province === 'Murcia') {
         cities = ['Murcia', 'Cartagena', 'Lorca', 'Molina de Segura'];
-    } else if (province === 'aragón') {
+    } else if (province === 'Aragón') {
         cities = ['Zaragoza', 'Huesca', 'Teruel'];
-    } else if (province === 'extremadura') {
+    } else if (province === 'Extremadura') {
         cities = ['Badajoz', 'Cáceres', 'Plasencia'];
-    } else if (province === 'navarra') {
+    } else if (province === 'Navarra') {
         cities = ['Pamplona', 'Tudela', 'Estella'];
-    } else if (province === 'la_rioja') {
+    } else if (province === 'La Rioja') {
         cities = ['Logroño', 'Calahorra', 'Arnedo'];
-    } else if (province === 'asturias') {
+    } else if (province === 'Asturias') {
         cities = ['Oviedo', 'Gijón', 'Avilés'];
-    } else if (province === 'cantabria') {
+    } else if (province === 'Cantabria') {
         cities = ['Santander', 'Torrelavega', 'Astillero'];
-    } else if (province === 'islas_baleares') {
+    } else if (province === 'Islas Baleares') {
         cities = ['Palma', 'Ibiza', 'Mahón', 'Manacor'];
-    } else if (province === 'islas_canarias') {
+    } else if (province === 'Islas Canarias') {
         cities = ['Las Palmas de Gran Canaria', 'Santa Cruz de Tenerife', 'San Cristóbal de La Laguna', 'La Orotava', 'Arrecife'];
-    } else if (province === 'ceuta_y_melilla') {
+    } else if (province === 'Ceuta y Melilla') {
         cities = ['Ceuta', 'Melilla'];
-    }    
+    }
 
     cities.forEach(city => {
         const option = document.createElement('option');
-        option.value = city.toLowerCase().replace(/\s+/g, '_');
+        option.value = city;
         option.textContent = city;
         citySelect.appendChild(option);
     });

@@ -597,13 +597,33 @@ function abrirModalEditar(vehicle) {
 
     const imageContainer = editModal.querySelector('.image-container');
     imageContainer.innerHTML = ''; 
+    
+    // Añadir las imágenes del vehículo
     vehicle.imagenes.forEach(src => {
         const img = document.createElement('img');
         img.src = src;
         img.alt = `${vehicle.marca} ${vehicle.modelo}`;
         img.classList.add('vehicle-image');
         imageContainer.appendChild(img);
+        img.addEventListener('click', function() {
+            alert('Eliminar imagen');
+        }); 
     });
+    
+    const addImageWrapper = document.createElement('div');
+    addImageWrapper.classList.add('vehicle-image');
+    addImageWrapper.classList.add('add-btn');
+
+    const addIcon = document.createElement('i');
+    addIcon.classList.add('fas', 'fa-plus', 'fa-2x');
+    addIcon.style.color = 'green';
+    
+    addImageWrapper.appendChild(addIcon);
+    imageContainer.appendChild(addImageWrapper);
+    
+    addImageWrapper.addEventListener('click', function() {
+        alert('Añadir nueva imagen');
+    });    
 
     form.onsubmit = async (event) => {
         event.preventDefault();
