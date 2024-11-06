@@ -4,8 +4,61 @@ const generateOptions = (array, name) => {
 };
 
 // Botón de búsqueda
-document.getElementById('search-btn').addEventListener('click', function() {
-    // Lógica de la búsqueda filtrada
+document.getElementById('search-btn').addEventListener('click', async function() {
+    // Obtener valores de los filtros
+    const brand = document.getElementById('brand').value;
+    const model = document.getElementById('model').value;
+    const province = document.getElementById('province').value;
+    const city = document.getElementById('city').value;
+    const mileageFrom = document.getElementById('mileage-from').value;
+    const mileageTo = document.getElementById('mileage-to').value;
+    let yearFrom = document.getElementById('year-from').value;
+    let yearTo = document.getElementById('year-to').value;
+    const horsepowerFrom = document.getElementById('horsepower-from').value;
+    const horsepowerTo = document.getElementById('horsepower-to').value;
+    const priceFrom = document.getElementById('price-from').value;
+    const priceTo = document.getElementById('price-to').value;
+    const fuel = document.getElementById('fuel').options[document.getElementById('fuel').selectedIndex].text;
+    const transmission = document.getElementById('transmission').options[document.getElementById('transmission').selectedIndex].text;
+
+    // Verificar y corregir el orden de los años si es necesario
+    if (yearFrom && yearTo && parseInt(yearFrom) > parseInt(yearTo)) {
+        [yearFrom, yearTo] = [yearTo, yearFrom];
+    }
+
+    // Construir los parámetros de la URL solo si los valores no son predeterminados
+    let url = 'https://plsmotors-api.onrender.com/vehiculos?';
+    const params = new URLSearchParams();
+
+    if (brand && brand !== 'all') params.append('brand', brand);
+    if (model) params.append('model', model);
+    if (province && province !== 'all') params.append('province', province);
+    if (city) params.append('city', city);
+    if (mileageFrom && mileageFrom !== '0') params.append('mileage-from', mileageFrom);
+    if (mileageTo && mileageTo !== '300000') params.append('mileage-to', mileageTo);
+    if (yearFrom && yearFrom !== '1980') params.append('year-from', yearFrom);
+    if (yearTo && yearTo !== '2024') params.append('year-to', yearTo);
+    if (horsepowerFrom && horsepowerFrom !== '0') params.append('horsepower-from', horsepowerFrom);
+    if (horsepowerTo && horsepowerTo !== '500') params.append('horsepower-to', horsepowerTo);
+    if (priceFrom && priceFrom !== '0') params.append('price-from', priceFrom);
+    if (priceTo && priceTo !== '200000') params.append('price-to', priceTo);
+    if (fuel && fuel !== 'Todos') params.append('fuel', fuel);
+    if (transmission && transmission !== 'Todos') params.append('transmission', transmission);
+
+    // Agregar los parámetros a la URL
+    url += params.toString();
+    console.log(url);
+
+    try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Error en la red');
+
+        const data = await response.json();
+        const publicacionesFiltradas = data.data;
+        console.log('Publicaciones filtradas:', publicacionesFiltradas);
+    } catch (error) {
+        alert('Error al cargar las publicaciones filtradas');
+    }
 });
 
 // Botón de resetear filtros
@@ -13,15 +66,6 @@ document.getElementById('reset-filters-btn').addEventListener('click', function(
     const icon = document.querySelector('.reset-icon');
     icon.classList.add('rotate');
 
-    resetFilters();
-
-    setTimeout(() => {
-        icon.classList.remove('rotate');
-    }, 600);
-});
-
-// Función para reiniciar todos los filtros
-function resetFilters() {
     // Reiniciar marca y modelo
     document.getElementById('brand').value = defaultValues.brand;
     document.getElementById('model').disabled = true;
@@ -51,7 +95,11 @@ function resetFilters() {
     // Reiniciar combustible y transmisión
     document.getElementById('fuel').value = defaultValues.fuel;
     document.getElementById('transmission').value = defaultValues.transmission;
-}
+
+    setTimeout(() => {
+        icon.classList.remove('rotate');
+    }, 600);
+});
 
 document.getElementById('brand').innerHTML += generateOptions(brands);
 

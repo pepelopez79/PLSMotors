@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const publicacionesFavoritasSection = document.querySelector('#publicaciones-favoritas');
 
         if (publicacionesSection && publicacionesSection.offsetParent !== null) {
-            mostrarPublicaciones();
+            mostrarPublicaciones(publicaciones);
         } else if (misPublicacionesSection && misPublicacionesSection.offsetParent !== null) {
             mostrarMisPublicaciones(dniUsuarioActual);
         } else if (publicacionesFavoritasSection && publicacionesFavoritasSection.offsetParent !== null) {
@@ -86,7 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function mostrarPublicaciones() {
+    function mostrarPublicaciones(publicaciones) {
         const contenedor = document.querySelector('#publicaciones .container');
         contenedor.innerHTML = '';
     
@@ -238,7 +238,7 @@ document.addEventListener('DOMContentLoaded', () => {
             pageItem.addEventListener('click', (event) => {
                 event.preventDefault();
                 paginaActual = i;
-                mostrarPublicaciones();
+                mostrarPublicaciones(publicaciones);
             });
             paginacion.appendChild(pageItem);
         }

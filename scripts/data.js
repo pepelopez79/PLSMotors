@@ -172,7 +172,10 @@ const generateMileageOptions = () => {
 
 // Años
 const generateYearOptions = () => {
-    return [...Array(45).keys()].map(i => `<option value="${2024 - i}">${1980 + i}</option>`).join('');
+    return [...Array(45).keys()].map(i => {
+        const year = 2024 - i;
+        return `<option value="${year}">${year}</option>`;
+    }).join('');
 };
 
 // Potencia
