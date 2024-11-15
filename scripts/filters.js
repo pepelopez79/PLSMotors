@@ -54,17 +54,21 @@ document.getElementById('search-btn').addEventListener('click', async function()
         if (!response.ok) throw new Error('Error en la red');
 
         const data = await response.json();
-        const publicacionesFiltradas = data.data;
-        console.log('Publicaciones filtradas:', publicacionesFiltradas);
+        publicacionesFiltradas = data.data;
+        console.log('Publicaciones filtradas(filters.js):', publicacionesFiltradas);
     } catch (error) {
         alert('Error al cargar las publicaciones filtradas');
     }
+
+    mostrarPublicaciones(true)
 });
 
 // Botón de resetear filtros
 document.getElementById('reset-filters-btn').addEventListener('click', function() {
     const icon = document.querySelector('.reset-icon');
     icon.classList.add('rotate');
+
+    mostrarPublicaciones()
 
     // Reiniciar marca y modelo
     document.getElementById('brand').value = defaultValues.brand;

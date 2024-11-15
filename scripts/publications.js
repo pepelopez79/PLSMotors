@@ -1,251 +1,258 @@
-document.addEventListener('DOMContentLoaded', () => {
-    // Variables iniciales
-    let publicaciones = [];
-    let matriculasFavoritas = [];
-    const dniUsuarioActual = "23456789C";
-    const publicacionesPorPagina = 9;
-    let paginaActual = 1;
+// Variables iniciales
+let publicaciones = [];
+let publicacionesFiltradas = [];
+let matriculasFavoritas = [];
+const dniUsuarioActual = "23456789C";
+const publicacionesPorPagina = 9;
+let paginaActual = 1;
 
-    // Mostrar el indicador de carga
-    function mostrarCargando() {
-        document.getElementById('loading').style.display = 'block';
+// Mostrar el indicador de carga
+function mostrarCargando() {
+    document.getElementById('loading').style.display = 'block';
+}
+
+// Ocultar el indicador de carga
+function ocultarCargando() {
+    document.getElementById('loading').style.display = 'none';
+}
+
+// Obtener publicaciones de la API
+async function obtenerPublicacionesAPI() {
+    mostrarCargando();
+    try {
+        const response = await fetch('https://plsmotors-api.onrender.com/publicaciones');
+        if (!response.ok) throw new Error('Error en la red');
+        const data = await response.json();
+        publicaciones = data.data;
+        console.log('Publicaciones filtradas(obtenerpublicacionesapi):', publicacionesFiltradas);
+    } catch (error) {
+        console.error('Error al obtener las publicaciones:', error);
+    }
+    ocultarCargando();
+}
+
+// Obtener publicaciones favoritas de la API
+async function obtenerPublicacionesFavoritasAPI() {
+    mostrarCargando();
+    try {
+        const response = await fetch(`https://plsmotors-api.onrender.com/favoritos/${dniUsuarioActual}`);
+        if (!response.ok) throw new Error('Error en la red');
+
+        const data = await response.json();
+        console.log(data);
+
+        // Extraer matrículas favoritas
+        matriculasFavoritas = data.data.map(favorito => favorito.matricula_vehiculo);
+    } catch (error) {
+        console.error('Error al obtener tus publicaciones favoritas:', error);
+    } finally {
+        ocultarCargando();
+    }
+}
+
+// Función para manejar la vista actual
+async function manejarVistaActual() {
+    await Promise.all([obtenerPublicacionesAPI(), obtenerPublicacionesFavoritasAPI()]);
+    const publicacionesSection = document.querySelector('#publicaciones');
+    const misPublicacionesSection = document.querySelector('#mis-publicaciones');
+    const publicacionesFavoritasSection = document.querySelector('#publicaciones-favoritas');
+
+    if (publicacionesSection && publicacionesSection.offsetParent !== null) {
+        mostrarPublicaciones();
+    } else if (misPublicacionesSection && misPublicacionesSection.offsetParent !== null) {
+        mostrarMisPublicaciones(dniUsuarioActual);
+    } else if (publicacionesFavoritasSection && publicacionesFavoritasSection.offsetParent !== null) {
+        mostrarPublicacionesFavoritas();
+    } else {
+        console.error('Vista no reconocida');
+    }
+}
+
+// Función para obtener datos del vehículo y usuario
+async function obtenerDatosAdicionales(matricula, dni) {
+    mostrarCargando();
+    try {
+        const [vehiculoResponse, usuarioResponse] = await Promise.all([
+            fetch(`https://plsmotors-api.onrender.com/vehiculos/${matricula}`),
+            fetch(`https://plsmotors-api.onrender.com/usuarios/${dni}`)
+        ]);
+        if (!vehiculoResponse.ok || !usuarioResponse.ok) throw new Error('Error en los datos adicionales');
+        const vehiculo = await vehiculoResponse.json();
+        const usuario = await usuarioResponse.json();
+        return { vehiculo: vehiculo.data, usuario: usuario.data };
+    } catch (error) {
+        console.error('Error al obtener datos adicionales:', error);
+        return { vehiculo: null, usuario: null };
+    } finally {
+        ocultarCargando();
+    }
+}
+
+function mostrarPublicaciones(filtros = false) {
+    obtenerPublicacionesAPI()
+    const contenedor = document.querySelector('#publicaciones .container');
+    contenedor.innerHTML = '';
+
+    // Filtrado
+    if (filtros) {
+        publicaciones = publicaciones.filter(publicacion => 
+            publicacionesFiltradas.some(vehiculo => vehiculo.matricula === publicacion.matricula_vehiculo)
+        );
     }
 
-    // Ocultar el indicador de carga
-    function ocultarCargando() {
-        document.getElementById('loading').style.display = 'none';
+    const inicio = (paginaActual - 1) * publicacionesPorPagina;
+    const fin = inicio + publicacionesPorPagina;
+    let publicacionesPaginadas = publicaciones.slice(inicio, fin);
+
+    if (publicacionesPaginadas.length === 0) {
+        const mensaje = document.createElement('div');
+        mensaje.className = 'mensaje';
+        mensaje.textContent = 'No hay publicaciones disponibles';
+        contenedor.appendChild(mensaje);
+        return;
     }
 
-    // Obtener publicaciones de la API
-    async function obtenerPublicacionesAPI() {
-        mostrarCargando();
-        try {
-            const response = await fetch('https://plsmotors-api.onrender.com/publicaciones');
-            if (!response.ok) throw new Error('Error en la red');
-            const data = await response.json();
-            publicaciones = data.data;
-        } catch (error) {
-            console.error('Error al obtener las publicaciones:', error);
-        }
+    const promises = publicacionesPaginadas.map(publicacion => 
+        obtenerDatosAdicionales(publicacion.matricula_vehiculo, publicacion.dni_usuario)
+            .then(({ vehiculo, usuario }) => {
+                const isFavorita = matriculasFavoritas.includes(publicacion.matricula_vehiculo);
+                return vehiculo ? crearTarjetaVehiculo(vehiculo, usuario, dniUsuarioActual, isFavorita) : null;
+            })
+            .catch(error => {
+                console.error('Error al obtener datos adicionales:', error);
+                return null;
+            })
+    );
+
+    Promise.all(promises).then(vehicleCards => {
+        const row = document.createElement('div');
+        row.className = 'row';
+        vehicleCards.forEach(card => {
+            if (card) {
+                row.appendChild(card);
+            }
+        });
+        contenedor.appendChild(row);
+        mostrarControlesDePaginas();
+    }).catch(error => {
+        const mensaje = document.createElement('div');
+        mensaje.className = 'mensaje';
+        mensaje.textContent = 'Error al cargar las publicaciones';
+        contenedor.appendChild(mensaje);
+    });
+}
+
+function mostrarMisPublicaciones(dniUsuarioActual) {
+    const contenedor = document.querySelector('#mis-publicaciones .container');
+    contenedor.innerHTML = '';
+    const publicacionesUsuario = publicaciones.filter(pub => pub.dni_usuario === dniUsuarioActual);
+
+    if (publicacionesUsuario.length === 0) {
+        const mensaje = document.createElement('p');
+        mensaje.className = 'mensaje';
+        mensaje.textContent = 'No has publicado nada aún';
+        contenedor.appendChild(mensaje);
+        
+        // Aquí puedes añadir la tarjeta vacía solo si no hay publicaciones
+        const addCard = crearTarjetaVacia(dniUsuarioActual);
+        contenedor.appendChild(addCard);
+        
+        return; // Termina la función aquí
     }
 
-    // Obtener publicaciones favoritas de la API
-    async function obtenerPublicacionesFavoritasAPI() {
-        mostrarCargando();
-        try {
-            const response = await fetch(`https://plsmotors-api.onrender.com/favoritos/${dniUsuarioActual}`);
-            if (!response.ok) throw new Error('Error en la red');
+    const promises = publicacionesUsuario.map(publicacion =>
+        obtenerDatosAdicionales(publicacion.matricula_vehiculo, publicacion.dni_usuario)
+            .then(({ vehiculo, usuario }) => {
+                if (vehiculo) {
+                    return crearMiTarjetaVehiculo(publicacion, vehiculo, usuario);
+                }
+                return null;
+            })
+            .catch(error => {
+                console.error('Error al obtener datos adicionales para la publicación:', error);
+                return null;
+            })
+    );
 
-            const data = await response.json();
-            console.log(data);
+    Promise.all(promises).then(vehicleCards => {
+        const row = document.createElement('div');
+        row.className = 'row';
 
-            // Extraer matrículas favoritas
-            matriculasFavoritas = data.data.map(favorito => favorito.matricula_vehiculo);
-        } catch (error) {
-            console.error('Error al obtener tus publicaciones favoritas:', error);
-        } finally {
-            ocultarCargando();
-        }
+        // Añadir todas las tarjetas de vehículo
+        vehicleCards.forEach(card => {
+            if (card) {
+                row.appendChild(card);
+            }
+        });
+
+        // Añadir la tarjeta de "añadir nueva publicación" si hay al menos una publicación
+        const addCard = crearTarjetaVacia(dniUsuarioActual);
+        row.appendChild(addCard);
+
+        contenedor.appendChild(row);
+    }).catch(error => {
+        console.error('Error al mostrar mis publicaciones:', error);
+    });
+}    
+
+async function mostrarPublicacionesFavoritas() {
+    const contenedor = document.querySelector('#publicaciones-favoritas .container');
+    contenedor.innerHTML = '';
+
+    const publicacionesFavoritasFiltradas = publicaciones.filter(publicacion =>
+        matriculasFavoritas.includes(publicacion.matricula_vehiculo)
+    );
+
+    if (publicacionesFavoritasFiltradas.length === 0) {
+        const mensajeNoFavoritas = document.createElement('p');
+        mensajeNoFavoritas.textContent = 'No tienes publicaciones favoritas';
+        mensajeNoFavoritas.className = 'mensaje';
+        contenedor.appendChild(mensajeNoFavoritas);
+        return;
     }
 
-    // Función para manejar la vista actual
-    async function manejarVistaActual() {
-        await Promise.all([obtenerPublicacionesAPI(), obtenerPublicacionesFavoritasAPI()]);
-        const publicacionesSection = document.querySelector('#publicaciones');
-        const misPublicacionesSection = document.querySelector('#mis-publicaciones');
-        const publicacionesFavoritasSection = document.querySelector('#publicaciones-favoritas');
+    const promises = publicacionesFavoritasFiltradas.map(publicacion => 
+        obtenerDatosAdicionales(publicacion.matricula_vehiculo, publicacion.dni_usuario)
+            .then(({ vehiculo, usuario }) => {
+                return vehiculo ? crearTarjetaVehiculo(vehiculo, usuario, dniUsuarioActual, true) : null;
+            })
+            .catch(error => {
+                console.error('Error al obtener datos adicionales:', error);
+                return null;
+            })
+    );
 
-        if (publicacionesSection && publicacionesSection.offsetParent !== null) {
+    Promise.all(promises).then(vehicleCards => {
+        const row = document.createElement('div');
+        row.className = 'row';
+        vehicleCards.forEach(card => {
+            if (card) {
+                row.appendChild(card);
+            }
+        });
+        contenedor.appendChild(row);
+    }).catch(error => {
+        console.error('Error al mostrar publicaciones favoritas:', error);
+    });
+}    
+
+// Control de paginación
+function mostrarControlesDePaginas() {
+    const paginacion = document.querySelector('#pagination');
+    paginacion.innerHTML = '';
+    const totalPaginas = Math.ceil(publicaciones.length / publicacionesPorPagina);
+    for (let i = 1; i <= totalPaginas; i++) {
+        const pageItem = document.createElement('li');
+        pageItem.className = `page-item ${paginaActual === i ? 'active' : ''}`;
+        pageItem.innerHTML = `<a class="page-link" href="#">${i}</a>`;
+        pageItem.addEventListener('click', (event) => {
+            event.preventDefault();
+            paginaActual = i;
             mostrarPublicaciones(publicaciones);
-        } else if (misPublicacionesSection && misPublicacionesSection.offsetParent !== null) {
-            mostrarMisPublicaciones(dniUsuarioActual);
-        } else if (publicacionesFavoritasSection && publicacionesFavoritasSection.offsetParent !== null) {
-            mostrarPublicacionesFavoritas();
-        } else {
-            console.error('Vista no reconocida');
-        }
-    }
-    
-    // Función para obtener datos del vehículo y usuario
-    async function obtenerDatosAdicionales(matricula, dni) {
-        mostrarCargando();
-        try {
-            const [vehiculoResponse, usuarioResponse] = await Promise.all([
-                fetch(`https://plsmotors-api.onrender.com/vehiculos/${matricula}`),
-                fetch(`https://plsmotors-api.onrender.com/usuarios/${dni}`)
-            ]);
-            if (!vehiculoResponse.ok || !usuarioResponse.ok) throw new Error('Error en los datos adicionales');
-            const vehiculo = await vehiculoResponse.json();
-            const usuario = await usuarioResponse.json();
-            return { vehiculo: vehiculo.data, usuario: usuario.data };
-        } catch (error) {
-            console.error('Error al obtener datos adicionales:', error);
-            return { vehiculo: null, usuario: null };
-        } finally {
-            ocultarCargando();
-        }
-    }
-
-    function mostrarPublicaciones(publicaciones) {
-        const contenedor = document.querySelector('#publicaciones .container');
-        contenedor.innerHTML = '';
-    
-        const inicio = (paginaActual - 1) * publicacionesPorPagina;
-        const fin = inicio + publicacionesPorPagina;
-        const publicacionesPaginadas = publicaciones.slice(inicio, fin);
-    
-        if (publicacionesPaginadas.length === 0) {
-            const mensaje = document.createElement('div');
-            mensaje.className = 'mensaje';
-            mensaje.textContent = 'No hay publicaciones disponibles';
-            contenedor.appendChild(mensaje);
-            return;
-        }
-    
-        const promises = publicacionesPaginadas.map(publicacion => 
-            obtenerDatosAdicionales(publicacion.matricula_vehiculo, publicacion.dni_usuario)
-                .then(({ vehiculo, usuario }) => {
-                    const isFavorita = matriculasFavoritas.includes(publicacion.matricula_vehiculo);
-                    return vehiculo ? crearTarjetaVehiculo(vehiculo, usuario, dniUsuarioActual, isFavorita) : null;
-                })
-                .catch(error => {
-                    console.error('Error al obtener datos adicionales:', error);
-                    return null;
-                })
-        );
-    
-        Promise.all(promises).then(vehicleCards => {
-            const row = document.createElement('div');
-            row.className = 'row';
-            vehicleCards.forEach(card => {
-                if (card) {
-                    row.appendChild(card);
-                }
-            });
-            contenedor.appendChild(row);
-            mostrarControlesDePaginas();
-        }).catch(error => {
-            const mensaje = document.createElement('div');
-            mensaje.className = 'mensaje';
-            mensaje.textContent = 'Error al cargar las publicaciones';
-            contenedor.appendChild(mensaje);
         });
-    }      
-
-    function mostrarMisPublicaciones(dniUsuarioActual) {
-        const contenedor = document.querySelector('#mis-publicaciones .container');
-        contenedor.innerHTML = '';
-        const publicacionesUsuario = publicaciones.filter(pub => pub.dni_usuario === dniUsuarioActual);
-    
-        if (publicacionesUsuario.length === 0) {
-            const mensaje = document.createElement('p');
-            mensaje.className = 'mensaje';
-            mensaje.textContent = 'No has publicado nada aún';
-            contenedor.appendChild(mensaje);
-            
-            // Aquí puedes añadir la tarjeta vacía solo si no hay publicaciones
-            const addCard = crearTarjetaVacia(dniUsuarioActual);
-            contenedor.appendChild(addCard);
-            
-            return; // Termina la función aquí
-        }
-    
-        const promises = publicacionesUsuario.map(publicacion =>
-            obtenerDatosAdicionales(publicacion.matricula_vehiculo, publicacion.dni_usuario)
-                .then(({ vehiculo, usuario }) => {
-                    if (vehiculo) {
-                        return crearMiTarjetaVehiculo(publicacion, vehiculo, usuario);
-                    }
-                    return null;
-                })
-                .catch(error => {
-                    console.error('Error al obtener datos adicionales para la publicación:', error);
-                    return null;
-                })
-        );
-    
-        Promise.all(promises).then(vehicleCards => {
-            const row = document.createElement('div');
-            row.className = 'row';
-    
-            // Añadir todas las tarjetas de vehículo
-            vehicleCards.forEach(card => {
-                if (card) {
-                    row.appendChild(card);
-                }
-            });
-    
-            // Añadir la tarjeta de "añadir nueva publicación" si hay al menos una publicación
-            const addCard = crearTarjetaVacia(dniUsuarioActual);
-            row.appendChild(addCard);
-    
-            contenedor.appendChild(row);
-        }).catch(error => {
-            console.error('Error al mostrar mis publicaciones:', error);
-        });
-    }    
-
-    async function mostrarPublicacionesFavoritas() {
-        const contenedor = document.querySelector('#publicaciones-favoritas .container');
-        contenedor.innerHTML = '';
-    
-        const publicacionesFavoritasFiltradas = publicaciones.filter(publicacion =>
-            matriculasFavoritas.includes(publicacion.matricula_vehiculo)
-        );
-    
-        if (publicacionesFavoritasFiltradas.length === 0) {
-            const mensajeNoFavoritas = document.createElement('p');
-            mensajeNoFavoritas.textContent = 'No tienes publicaciones favoritas';
-            mensajeNoFavoritas.className = 'mensaje';
-            contenedor.appendChild(mensajeNoFavoritas);
-            return;
-        }
-    
-        const promises = publicacionesFavoritasFiltradas.map(publicacion => 
-            obtenerDatosAdicionales(publicacion.matricula_vehiculo, publicacion.dni_usuario)
-                .then(({ vehiculo, usuario }) => {
-                    return vehiculo ? crearTarjetaVehiculo(vehiculo, usuario, dniUsuarioActual, true) : null;
-                })
-                .catch(error => {
-                    console.error('Error al obtener datos adicionales:', error);
-                    return null;
-                })
-        );
-    
-        Promise.all(promises).then(vehicleCards => {
-            const row = document.createElement('div');
-            row.className = 'row';
-            vehicleCards.forEach(card => {
-                if (card) {
-                    row.appendChild(card);
-                }
-            });
-            contenedor.appendChild(row);
-        }).catch(error => {
-            console.error('Error al mostrar publicaciones favoritas:', error);
-        });
-    }    
-
-    // Control de paginación
-    function mostrarControlesDePaginas() {
-        const paginacion = document.querySelector('#pagination');
-        paginacion.innerHTML = '';
-        const totalPaginas = Math.ceil(publicaciones.length / publicacionesPorPagina);
-        for (let i = 1; i <= totalPaginas; i++) {
-            const pageItem = document.createElement('li');
-            pageItem.className = `page-item ${paginaActual === i ? 'active' : ''}`;
-            pageItem.innerHTML = `<a class="page-link" href="#">${i}</a>`;
-            pageItem.addEventListener('click', (event) => {
-                event.preventDefault();
-                paginaActual = i;
-                mostrarPublicaciones(publicaciones);
-            });
-            paginacion.appendChild(pageItem);
-        }
+        paginacion.appendChild(pageItem);
     }
-
-    manejarVistaActual();
-});
+}
 
 // Cambia el color del corazón entre lleno y vacío
 function cambiarFavorito(event, dniUsuarioActual, matriculaVehiculo) {
@@ -776,3 +783,5 @@ $('#vehicleModal').on('show.bs.modal', function () {
 $('#vehicleModal').on('hide.bs.modal', function () {
     $(this).find('.modal-content').removeClass('modal-slide-in').addClass('modal-slide-out');
 });
+
+manejarVistaActual();
