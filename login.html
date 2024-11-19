@@ -13,6 +13,7 @@
     <section id="registro" class="bg">
         <div class="container">
             <form class="form-horizontal" id="registroForm">
+                <!-- Campo para email -->
                 <div class="form-group">
                     <label for="email" class="control-label" style="color: black;"><b>Email:</b></label>
                     <div class="text-field">
@@ -20,6 +21,7 @@
                     </div>
                 </div>
 
+                <!-- Campo para contraseña -->
                 <div class="form-group">
                     <label for="password" class="control-label" style="color: black;"><b>Contraseña:</b></label>
                     <div class="text-field">
@@ -27,6 +29,7 @@
                     </div>
                 </div>
 
+                <!-- Campo para confirmar contraseña (solo para registro) -->
                 <div class="form-group" id="confirmPasswordGroup" style="display: none;">
                     <label for="confirmPassword" class="control-label" style="color: black;"><b>Confirmar Contraseña:</b></label>
                     <div class="text-field">
@@ -34,37 +37,34 @@
                     </div>
                 </div>
 
-                <div class="form-group" id="fechaNacimientoGroup" style="display: none;">
-                    <label for="fechaNacimiento" class="control-label" style="color: black;"><b>Fecha de Nacimiento:</b></label>
+                <!-- Campo para DNI (nuevo campo) -->
+                <div class="form-group" id="dniGroup">
+                    <label for="dni" class="control-label" style="color: black;"><b>DNI:</b></label>
                     <div class="text-field">
-                        <input type="date" class="form-control" id="fechaNacimiento">
+                        <input type="text" class="form-control" id="dni" placeholder="Ingrese su DNI">
                     </div>
                 </div>
 
-                <div class="form-group" id="direccionGroup" style="display: none;">
-                    <label for="direccion" class="control-label" style="color: black;"><b>Dirección:</b></label>
+                <!-- Campo para nombre (solo para registro) -->
+                <div class="form-group" id="nombreGroup" style="display: none;">
+                    <label for="nombre" class="control-label" style="color: black;"><b>Nombre:</b></label>
                     <div class="text-field">
-                        <input type="text" class="form-control" id="direccion" placeholder="Ingrese su dirección">
+                        <input type="text" class="form-control" id="nombre" placeholder="Ingrese su nombre completo">
                     </div>
                 </div>
 
-                <div class="form-group" id="codigoPostalGroup" style="display: none;">
-                    <label for="codigoPostal" class="control-label" style="color: black;"><b>Código Postal:</b></label>
+                <!-- Campo para teléfono (solo para registro) -->
+                <div class="form-group" id="telefonoGroup" style="display: none;">
+                    <label for="telefono" class="control-label" style="color: black;"><b>Teléfono:</b></label>
                     <div class="text-field">
-                        <input type="text" class="form-control" id="codigoPostal" placeholder="Ingrese su código postal">
-                    </div>
-                </div>
-
-                <div class="form-group" id="ciudadGroup" style="display: none;">
-                    <label for="ciudad" class="control-label" style="color: black;"><b>Ciudad:</b></label>
-                    <div class="text-field">
-                        <input type="text" class="form-control" id="ciudad" placeholder="Ingrese su ciudad">
+                        <input type="text" class="form-control" id="telefono" placeholder="Ingrese su número de teléfono">
                     </div>
                 </div>
 
                 <div class="form-group">
                     <div class="col-sm-offset-2">
                         <button type="button" class="btn btn-primary" id="btnVolver" style="display: none;"><b>Volver</b></button>
+                        <button type="button" class="btn btn-primary" id="btnRegistro" style="display: none"><b>Registrarse</b></button>
                         <button type="button" class="btn btn-primary" id="btnRegistrar"><b>Registrarse</b></button>
                         <button type="button" class="btn btn-primary" id="btnIniciarSesion"><b>Iniciar Sesión</b></button>
                     </div>
@@ -72,7 +72,6 @@
             </form>
         </div>
     </section>
-</body>
 
 <!-- Footer -->
 <footer>
@@ -80,9 +79,10 @@
 </footer>
 
 <!-- Scripts -->
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script src="scripts/script.js"></script>
+<script src="scripts/users.js"></script>
 
 </html>

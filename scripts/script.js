@@ -39,35 +39,6 @@ $('#volverArriba').on('click', function(e) {
 });
 
 $(document).ready(function() {
-    // Ocultar campos adicionales
-    $("#confirmPasswordGroup").hide();
-    $("#fechaNacimientoGroup").hide();
-    $("#direccionGroup").hide();
-    $("#codigoPostalGroup").hide();
-    $("#ciudadGroup").hide();
-
-    // Mostrar campos adicionales al hacer clic
-    $("#btnRegistrar").on('click', function() {
-        $("#confirmPasswordGroup").show();
-        $("#fechaNacimientoGroup").show();
-        $("#direccionGroup").show();
-        $("#codigoPostalGroup").show();
-        $("#ciudadGroup").show();
-        $("#btnIniciarSesion").hide();
-        $("#btnVolver").show();
-    });
-
-    // Volver a ocultar campos adicionales
-    $("#btnVolver").on('click', function() {
-        $("#confirmPasswordGroup").hide();
-        $("#fechaNacimientoGroup").hide();
-        $("#direccionGroup").hide();
-        $("#codigoPostalGroup").hide();
-        $("#ciudadGroup").hide();
-        $("#btnIniciarSesion").show();
-        $("#btnVolver").hide();
-    });
-
     // Leer Más/Menos
     $('#toggle-info').on('click', function(event) {
         event.preventDefault();
@@ -86,4 +57,4 @@ $(document).ready(function() {
 
         $(this).text(allVisible ? 'Leer más...' : 'Leer menos...');
     });
-});
+}); 
