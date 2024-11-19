@@ -24,7 +24,6 @@ async function obtenerPublicacionesAPI() {
         if (!response.ok) throw new Error('Error en la red');
         const data = await response.json();
         publicaciones = data.data;
-        console.log('Publicaciones filtradas(obtenerpublicacionesapi):', publicacionesFiltradas);
     } catch (error) {
         console.error('Error al obtener las publicaciones:', error);
     }
@@ -89,20 +88,23 @@ async function obtenerDatosAdicionales(matricula, dni) {
 }
 
 function mostrarPublicaciones(filtros = false) {
-    obtenerPublicacionesAPI()
+    obtenerPublicacionesAPI();
     const contenedor = document.querySelector('#publicaciones .container');
     contenedor.innerHTML = '';
 
+    let publicacionesMostradas = [...publicaciones];
+
     // Filtrado
     if (filtros) {
-        publicaciones = publicaciones.filter(publicacion => 
+        publicacionesMostradas = publicacionesMostradas.filter(publicacion => 
             publicacionesFiltradas.some(vehiculo => vehiculo.matricula === publicacion.matricula_vehiculo)
         );
     }
 
+    // Paginación
     const inicio = (paginaActual - 1) * publicacionesPorPagina;
     const fin = inicio + publicacionesPorPagina;
-    let publicacionesPaginadas = publicaciones.slice(inicio, fin);
+    const publicacionesPaginadas = publicacionesMostradas.slice(inicio, fin);
 
     if (publicacionesPaginadas.length === 0) {
         const mensaje = document.createElement('div');
@@ -112,6 +114,7 @@ function mostrarPublicaciones(filtros = false) {
         return;
     }
 
+    // Crear tarjetas para las publicaciones
     const promises = publicacionesPaginadas.map(publicacion => 
         obtenerDatosAdicionales(publicacion.matricula_vehiculo, publicacion.dni_usuario)
             .then(({ vehiculo, usuario }) => {
@@ -124,6 +127,7 @@ function mostrarPublicaciones(filtros = false) {
             })
     );
 
+    // Renderizado de las tarjetas y controles de paginación
     Promise.all(promises).then(vehicleCards => {
         const row = document.createElement('div');
         row.className = 'row';
@@ -133,7 +137,9 @@ function mostrarPublicaciones(filtros = false) {
             }
         });
         contenedor.appendChild(row);
-        mostrarControlesDePaginas();
+
+        // Mostrar controles de páginas basados en las publicaciones filtradas
+        mostrarControlesDePaginas(publicacionesMostradas);
     }).catch(error => {
         const mensaje = document.createElement('div');
         mensaje.className = 'mensaje';
@@ -237,10 +243,11 @@ async function mostrarPublicacionesFavoritas() {
 }    
 
 // Control de paginación
-function mostrarControlesDePaginas() {
+function mostrarControlesDePaginas(publicacionesMostradas) {
     const paginacion = document.querySelector('#pagination');
     paginacion.innerHTML = '';
-    const totalPaginas = Math.ceil(publicaciones.length / publicacionesPorPagina);
+    const totalPaginas = Math.ceil(publicacionesMostradas.length / publicacionesPorPagina);
+
     for (let i = 1; i <= totalPaginas; i++) {
         const pageItem = document.createElement('li');
         pageItem.className = `page-item ${paginaActual === i ? 'active' : ''}`;
@@ -248,7 +255,7 @@ function mostrarControlesDePaginas() {
         pageItem.addEventListener('click', (event) => {
             event.preventDefault();
             paginaActual = i;
-            mostrarPublicaciones(publicaciones);
+            mostrarPublicaciones(filtros = true);
         });
         paginacion.appendChild(pageItem);
     }

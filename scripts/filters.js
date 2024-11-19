@@ -5,6 +5,8 @@ const generateOptions = (array, name) => {
 
 // Botón de búsqueda
 document.getElementById('search-btn').addEventListener('click', async function() {
+    paginaActual = 1;
+
     // Obtener valores de los filtros
     const brand = document.getElementById('brand').value;
     const model = document.getElementById('model').value;
@@ -68,8 +70,6 @@ document.getElementById('reset-filters-btn').addEventListener('click', function(
     const icon = document.querySelector('.reset-icon');
     icon.classList.add('rotate');
 
-    mostrarPublicaciones()
-
     // Reiniciar marca y modelo
     document.getElementById('brand').value = defaultValues.brand;
     document.getElementById('model').disabled = true;
@@ -99,6 +99,8 @@ document.getElementById('reset-filters-btn').addEventListener('click', function(
     // Reiniciar combustible y transmisión
     document.getElementById('fuel').value = defaultValues.fuel;
     document.getElementById('transmission').value = defaultValues.transmission;
+
+    document.getElementById('search-btn').click();
 
     setTimeout(() => {
         icon.classList.remove('rotate');
