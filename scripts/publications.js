@@ -438,15 +438,67 @@ function crearTarjetaVacia(dniUsuarioActual) {
 function abrirModalCrearVehiculo(dniUsuarioActual) {
     const createModal = document.getElementById('createVehicleModal');
     const form = createModal.querySelector('form');
+    const imageContainer = createModal.querySelector('.image-container');
+
+    // Limpiar el contenedor de imágenes cada vez que se abre el modal
+    imageContainer.innerHTML = '';
+
+    // Añadir el icono de "plus" para agregar imágenes
+    const addImageWrapper = document.createElement('div');
+    addImageWrapper.classList.add('vehicle-image');
+    addImageWrapper.classList.add('add-btn');
+
+    const addIcon = document.createElement('i');
+    addIcon.classList.add('fas', 'fa-plus', 'fa-2x');
+    addIcon.style.color = 'green';
+    
+    addImageWrapper.appendChild(addIcon);
+    imageContainer.appendChild(addImageWrapper);
+
+    // Evento para abrir el selector de archivos
+    addImageWrapper.addEventListener('click', function() {
+        const inputFile = document.createElement('input');
+        inputFile.type = 'file';
+        inputFile.accept = 'image/*';
+        inputFile.multiple = true; // Permitir múltiples archivos
+
+        inputFile.addEventListener('change', function(event) {
+            const files = event.target.files;
+
+            if (files.length > 0) {
+                // Mostrar las imágenes seleccionadas
+                Array.from(files).forEach(file => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.alt = file.name;
+                        img.classList.add('vehicle-image');
+                        imageContainer.insertBefore(img, addImageWrapper); // Insertar las imágenes antes del icono
+
+                        // Añadir el evento de confirmación para eliminar la imagen
+                        img.addEventListener('click', function() {
+                            const confirmDelete = confirm('¿Estás seguro de que deseas eliminar esta imagen?');
+                            if (confirmDelete) {
+                                imageContainer.removeChild(img);
+                            }
+                        });
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+        });
+
+        inputFile.click();
+    });
 
     form.onsubmit = async (event) => {
         event.preventDefault();
 
-        const valid = validarCampos(form, true);
-        if (!valid) {
-            return;
-        }
+        const valid = validarCampos(form);
+        if (!valid) return;
 
+        console.log("Formulario de creación enviado.");
         await crearVehiculoYPublicacion(form, dniUsuarioActual);
     };
 
@@ -457,55 +509,6 @@ function abrirModalCrearVehiculo(dniUsuarioActual) {
     });
 
     $(createModal).modal('show');
-}
-
-// Función para validar los campos del modal
-function validarCampos(form, isCreating) {
-    const requiredFields = [
-        'marca',
-        'modelo',
-        'motor',
-        'ano',
-        'kilometraje',
-        'cv',
-        'precio',
-        'provincia',
-        'ciudad',
-        'combustible',
-        'transmision'
-    ];
-
-    if (isCreating) {
-        requiredFields.unshift('matricula');
-    }
-
-    let valid = true;
-
-    requiredFields.forEach(field => {
-        const input = form.elements[field];
-        if (!input.value.trim()) {
-            valid = false;
-            input.style.borderColor = 'red';
-            input.setAttribute('title', `${input.name} es obligatorio.`);
-        } else {
-            input.style.borderColor = '';
-            input.removeAttribute('title');
-        }
-    });
-
-    // Validar matrícula solo al crear vehículo
-    if (isCreating) {
-        const matriculaInput = form.elements['matricula'];
-        const matriculaRegex = /^[0-9]{4}[A-Z]{3}$/; // Formato 1234ABC
-        if (!matriculaRegex.test(matriculaInput.value)) {
-            valid = false;
-            matriculaInput.style.borderColor = 'red';
-            matriculaInput.setAttribute('title', 'La matrícula debe ser en el formato 1234ABC');
-            alert('La matrícula debe ser en el formato 1234ABC')
-        }
-    }
-
-    return valid;
 }
 
 // Función para crear un vehículo y luego una publicación
@@ -597,6 +600,7 @@ function abrirModalEditar(vehicle) {
     const editModal = document.getElementById('editVehicleModal');
     const form = editModal.querySelector('form');
 
+    // Rellenar los campos del formulario con los datos del vehículo
     form.elements['marca'].value = vehicle.marca;
     form.elements['modelo'].value = vehicle.modelo;
     form.elements['motor'].value = vehicle.motor;
@@ -610,35 +614,76 @@ function abrirModalEditar(vehicle) {
     form.elements['transmision'].value = vehicle.transmision;
 
     const imageContainer = editModal.querySelector('.image-container');
-    imageContainer.innerHTML = ''; 
-    
-    // Añadir las imágenes del vehículo
+    imageContainer.innerHTML = ''; // Limpiar el contenedor de imágenes antes de agregar las nuevas
+
+    // Añadir las imágenes del vehículo existente
     vehicle.imagenes.forEach(src => {
         const img = document.createElement('img');
         img.src = src;
         img.alt = `${vehicle.marca} ${vehicle.modelo}`;
         img.classList.add('vehicle-image');
         imageContainer.appendChild(img);
-        img.addEventListener('click', function() {
-            alert('Eliminar imagen');
-        }); 
-    });
-    
-    const addImageWrapper = document.createElement('div');
-    addImageWrapper.classList.add('vehicle-image');
-    addImageWrapper.classList.add('add-btn');
 
+        // Evento para eliminar imagen
+        img.addEventListener('click', function() {
+            const confirmDelete = confirm('¿Estás seguro de que deseas eliminar esta imagen?');
+        
+            if (confirmDelete) {
+                imageContainer.removeChild(img);
+            }
+        });
+    });
+
+    // Crear el icono de "plus" para añadir imágenes
+    const addImageWrapper = document.createElement('div');
+    addImageWrapper.classList.add('vehicle-image', 'add-btn');
+    
     const addIcon = document.createElement('i');
     addIcon.classList.add('fas', 'fa-plus', 'fa-2x');
     addIcon.style.color = 'green';
-    
+
     addImageWrapper.appendChild(addIcon);
     imageContainer.appendChild(addImageWrapper);
-    
-    addImageWrapper.addEventListener('click', function() {
-        alert('Añadir nueva imagen');
-    });    
 
+    // Evento para abrir el selector de imágenes cuando se hace clic en el icono "plus"
+    addImageWrapper.addEventListener('click', function() {
+        const inputFile = document.createElement('input');
+        inputFile.type = 'file';
+        inputFile.accept = 'image/*';
+        inputFile.multiple = true; // Permitir múltiples archivos
+
+        inputFile.addEventListener('change', function(event) {
+            const files = event.target.files;
+
+            if (files.length > 0) {
+                // Mostrar las imágenes seleccionadas
+                Array.from(files).forEach(file => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.alt = file.name;
+                        img.classList.add('vehicle-image');
+                        imageContainer.insertBefore(img, addImageWrapper);
+
+                        // Evento para eliminar imagen
+                        img.addEventListener('click', function() {
+                            const confirmDelete = confirm('¿Estás seguro de que deseas eliminar esta imagen?');
+                        
+                            if (confirmDelete) {
+                                imageContainer.removeChild(img);
+                            }
+                        });
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+        });
+
+        inputFile.click(); // Abrir el selector de archivos
+    });
+
+    // Validación y envío del formulario
     form.onsubmit = async (event) => {
         event.preventDefault();
 
@@ -649,12 +694,14 @@ function abrirModalEditar(vehicle) {
         await actualizarDatosVehiculo(form, vehicle);
     };
 
+    // Prevenir que el formulario se envíe al presionar Enter
     form.addEventListener('keypress', (event) => {
         if (event.key === 'Enter') {
             event.preventDefault();
         }
     });
 
+    // Mostrar el modal
     $(editModal).modal('show');
     editModal.dataset.vehicleId = vehicle.matricula;
 }
@@ -731,6 +778,55 @@ async function abrirModalEliminar(publicacion, vehiculo) {
             alert('No se pudo eliminar la publicación. Inténtalo de nuevo más tarde.');
         }
     }
+}
+
+// Función para validar los campos del modal
+function validarCampos(form, isCreating) {
+    const requiredFields = [
+        'marca',
+        'modelo',
+        'motor',
+        'ano',
+        'kilometraje',
+        'cv',
+        'precio',
+        'provincia',
+        'ciudad',
+        'combustible',
+        'transmision'
+    ];
+
+    if (isCreating) {
+        requiredFields.unshift('matricula');
+    }
+
+    let valid = true;
+
+    requiredFields.forEach(field => {
+        const input = form.elements[field];
+        if (!input.value.trim()) {
+            valid = false;
+            input.style.borderColor = 'red';
+            input.setAttribute('title', `${input.name} es obligatorio.`);
+        } else {
+            input.style.borderColor = '';
+            input.removeAttribute('title');
+        }
+    });
+
+    // Validar matrícula solo al crear vehículo
+    if (isCreating) {
+        const matriculaInput = form.elements['matricula'];
+        const matriculaRegex = /^[0-9]{4}[A-Z]{3}$/; // Formato 1234ABC
+        if (!matriculaRegex.test(matriculaInput.value)) {
+            valid = false;
+            matriculaInput.style.borderColor = 'red';
+            matriculaInput.setAttribute('title', 'La matrícula debe ser en el formato 1234ABC');
+            alert('La matrícula debe ser en el formato 1234ABC')
+        }
+    }
+
+    return valid;
 }
 
 function manejarClickVehiculo(event, vehicle, user) {
