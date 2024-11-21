@@ -49,24 +49,6 @@ async function obtenerPublicacionesFavoritasAPI() {
     }
 }
 
-// Función para manejar la vista actual
-async function manejarVistaActual() {
-    await Promise.all([obtenerPublicacionesAPI(), obtenerPublicacionesFavoritasAPI()]);
-    const publicacionesSection = document.querySelector('#publicaciones');
-    const misPublicacionesSection = document.querySelector('#mis-publicaciones');
-    const publicacionesFavoritasSection = document.querySelector('#publicaciones-favoritas');
-
-    if (publicacionesSection && publicacionesSection.offsetParent !== null) {
-        mostrarPublicaciones();
-    } else if (misPublicacionesSection && misPublicacionesSection.offsetParent !== null) {
-        mostrarMisPublicaciones(dniUsuarioActual);
-    } else if (publicacionesFavoritasSection && publicacionesFavoritasSection.offsetParent !== null) {
-        mostrarPublicacionesFavoritas();
-    } else {
-        console.error('Vista no reconocida');
-    }
-}
-
 // Función para obtener datos del vehículo y usuario
 async function obtenerDatosAdicionales(matricula, dni) {
     mostrarCargando();
@@ -84,6 +66,43 @@ async function obtenerDatosAdicionales(matricula, dni) {
         return { vehiculo: null, usuario: null };
     } finally {
         ocultarCargando();
+    }
+}
+
+// Función para manejar la vista actual
+async function manejarVistaActual() {
+    await Promise.all([obtenerPublicacionesAPI(), obtenerPublicacionesFavoritasAPI()]);
+    const publicacionesSection = document.querySelector('#publicaciones');
+    const misPublicacionesSection = document.querySelector('#mis-publicaciones');
+    const publicacionesFavoritasSection = document.querySelector('#publicaciones-favoritas');
+
+    if (publicacionesSection && publicacionesSection.offsetParent !== null) {
+        document.getElementById('reset-filters-btn').click();
+    } else if (misPublicacionesSection && misPublicacionesSection.offsetParent !== null) {
+        mostrarMisPublicaciones(dniUsuarioActual);
+    } else if (publicacionesFavoritasSection && publicacionesFavoritasSection.offsetParent !== null) {
+        mostrarPublicacionesFavoritas();
+    } else {
+        console.error('Vista no reconocida');
+    }
+}
+
+// Control de paginación
+function mostrarControlesDePaginas(publicacionesMostradas) {
+    const paginacion = document.querySelector('#pagination');
+    paginacion.innerHTML = '';
+    const totalPaginas = Math.ceil(publicacionesMostradas.length / publicacionesPorPagina);
+
+    for (let i = 1; i <= totalPaginas; i++) {
+        const pageItem = document.createElement('li');
+        pageItem.className = `page-item ${paginaActual === i ? 'active' : ''}`;
+        pageItem.innerHTML = `<a class="page-link" href="#">${i}</a>`;
+        pageItem.addEventListener('click', (event) => {
+            event.preventDefault();
+            paginaActual = i;
+            mostrarPublicaciones(filtros = true);
+        });
+        paginacion.appendChild(pageItem);
     }
 }
 
@@ -241,25 +260,6 @@ async function mostrarPublicacionesFavoritas() {
         console.error('Error al mostrar publicaciones favoritas:', error);
     });
 }    
-
-// Control de paginación
-function mostrarControlesDePaginas(publicacionesMostradas) {
-    const paginacion = document.querySelector('#pagination');
-    paginacion.innerHTML = '';
-    const totalPaginas = Math.ceil(publicacionesMostradas.length / publicacionesPorPagina);
-
-    for (let i = 1; i <= totalPaginas; i++) {
-        const pageItem = document.createElement('li');
-        pageItem.className = `page-item ${paginaActual === i ? 'active' : ''}`;
-        pageItem.innerHTML = `<a class="page-link" href="#">${i}</a>`;
-        pageItem.addEventListener('click', (event) => {
-            event.preventDefault();
-            paginaActual = i;
-            mostrarPublicaciones(filtros = true);
-        });
-        paginacion.appendChild(pageItem);
-    }
-}
 
 // Cambia el color del corazón entre lleno y vacío
 function cambiarFavorito(event, dniUsuarioActual, matriculaVehiculo) {

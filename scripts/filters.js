@@ -57,7 +57,6 @@ document.getElementById('search-btn').addEventListener('click', async function()
 
         const data = await response.json();
         publicacionesFiltradas = data.data;
-        console.log('Publicaciones filtradas(filters.js):', publicacionesFiltradas);
     } catch (error) {
         alert('Error al cargar las publicaciones filtradas');
     }
