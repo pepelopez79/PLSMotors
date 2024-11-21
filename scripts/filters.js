@@ -29,7 +29,7 @@ document.getElementById('search-btn').addEventListener('click', async function()
     }
 
     // Construir los parámetros de la URL solo si los valores no son predeterminados
-    let url = 'https://plsmotors-api.onrender.com/vehiculos?';
+    let url = `${baseURL}/vehiculos?`;
     const params = new URLSearchParams();
 
     if (brand && brand !== 'all') params.append('brand', brand);

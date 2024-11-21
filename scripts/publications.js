@@ -20,7 +20,7 @@ function ocultarCargando() {
 async function obtenerPublicacionesAPI() {
     mostrarCargando();
     try {
-        const response = await fetch('https://plsmotors-api.onrender.com/publicaciones');
+        const response = await fetch(`${baseURL}/publicaciones`);
         if (!response.ok) throw new Error('Error en la red');
         const data = await response.json();
         publicaciones = data.data;
@@ -34,7 +34,7 @@ async function obtenerPublicacionesAPI() {
 async function obtenerPublicacionesFavoritasAPI() {
     mostrarCargando();
     try {
-        const response = await fetch(`https://plsmotors-api.onrender.com/favoritos/${dniUsuarioActual}`);
+        const response = await fetch(`${baseURL}/favoritos/${dniUsuarioActual}`);
         if (!response.ok) throw new Error('Error en la red');
 
         const data = await response.json();
@@ -72,8 +72,8 @@ async function obtenerDatosAdicionales(matricula, dni) {
     mostrarCargando();
     try {
         const [vehiculoResponse, usuarioResponse] = await Promise.all([
-            fetch(`https://plsmotors-api.onrender.com/vehiculos/${matricula}`),
-            fetch(`https://plsmotors-api.onrender.com/usuarios/${dni}`)
+            fetch(`${baseURL}/vehiculos/${matricula}`),
+            fetch(`${baseURL}/usuarios/${dni}`)
         ]);
         if (!vehiculoResponse.ok || !usuarioResponse.ok) throw new Error('Error en los datos adicionales');
         const vehiculo = await vehiculoResponse.json();
@@ -302,7 +302,7 @@ function cambiarFavorito(event, dniUsuarioActual, matriculaVehiculo) {
 }
 
 function agregarFavorito(dniUsuario, matriculaVehiculo) {
-    fetch('https://plsmotors-api.onrender.com/favoritos', {
+    fetch(`${baseURL}/favoritos`, {
         method: 'POST',
         headers: {
         'Content-Type': 'application/json'
@@ -322,7 +322,7 @@ function agregarFavorito(dniUsuario, matriculaVehiculo) {
 }
   
 function eliminarFavorito(dniUsuario, matriculaVehiculo) {
-    fetch('https://plsmotors-api.onrender.com/favoritos', {
+    fetch(`${baseURL}/favoritos`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json'
@@ -531,7 +531,7 @@ async function crearVehiculoYPublicacion(form, dniUsuarioActual) {
 
     console.log("Datos del vehículo a enviar:", vehicleData);
     try {
-        const createVehicleResponse = await fetch('https://plsmotors-api.onrender.com/vehiculos', {
+        const createVehicleResponse = await fetch(`${baseURL}/vehiculos`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -569,7 +569,7 @@ async function crearPublicacion(matriculaVehiculo, dniUsuarioActual) {
     console.log("Datos de la publicación a enviar:", publicacionData);
 
     try {
-        const createPublicationResponse = await fetch('https://plsmotors-api.onrender.com/publicaciones', {
+        const createPublicationResponse = await fetch(`${baseURL}/publicaciones`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -686,7 +686,7 @@ async function actualizarDatosVehiculo(form, vehicle) {
     try {
         console.log(`Actualizando datos para el vehículo con matrícula: ${vehicle.matricula}`);
 
-        const updateResponse = await fetch(`https://plsmotors-api.onrender.com/vehiculos/${vehicle.matricula}`, {
+        const updateResponse = await fetch(`${baseURL}/vehiculos/${vehicle.matricula}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -713,11 +713,11 @@ async function abrirModalEliminar(publicacion, vehiculo) {
     const confirmacion = confirm(`¿Estás seguro de que quieres eliminar el vehículo ${vehiculo.modelo}?`);
     if (confirmacion) {
         try {
-            const responsePublicacion = await fetch(`https://plsmotors-api.onrender.com/publicaciones/${publicacion._id}`, {
+            const responsePublicacion = await fetch(`${baseURL}/publicaciones/${publicacion._id}`, {
                 method: 'DELETE'
             });
             if (!responsePublicacion.ok) throw new Error('Error al eliminar la publicación')
-            const responseVehiculo = await fetch(`https://plsmotors-api.onrender.com/vehiculos/${vehiculo.matricula}`, {
+            const responseVehiculo = await fetch(`${baseURL}/vehiculos/${vehiculo.matricula}`, {
                 method: 'DELETE'
             });
             if (!responseVehiculo.ok) throw new Error('Error al eliminar el vehículo');
