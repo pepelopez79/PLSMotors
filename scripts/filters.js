@@ -62,6 +62,12 @@ document.getElementById('search-btn').addEventListener('click', async function()
     }
 
     mostrarPublicaciones(true)
+
+    // Desplazarse a la sección de publicaciones
+    document.querySelector('#publicaciones').scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+    });
 });
 
 // Botón de resetear filtros

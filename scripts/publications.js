@@ -439,48 +439,53 @@ function abrirModalCrearVehiculo(dniUsuarioActual) {
     const createModal = document.getElementById('createVehicleModal');
     const form = createModal.querySelector('form');
     const imageContainer = createModal.querySelector('.image-container');
+    const uploadedFiles = []; // Almacenar las imágenes seleccionadas para subir
 
-    // Limpiar el contenedor de imágenes cada vez que se abre el modal
+    // Limpiar el contenedor de imágenes y la lista de archivos cada vez que se abre el modal
     imageContainer.innerHTML = '';
+    uploadedFiles.length = 0;
 
     // Añadir el icono de "plus" para agregar imágenes
     const addImageWrapper = document.createElement('div');
-    addImageWrapper.classList.add('vehicle-image');
-    addImageWrapper.classList.add('add-btn');
+    addImageWrapper.classList.add('vehicle-image', 'add-btn');
 
     const addIcon = document.createElement('i');
     addIcon.classList.add('fas', 'fa-plus', 'fa-2x');
     addIcon.style.color = 'green';
-    
+
     addImageWrapper.appendChild(addIcon);
     imageContainer.appendChild(addImageWrapper);
 
     // Evento para abrir el selector de archivos
-    addImageWrapper.addEventListener('click', function() {
+    addImageWrapper.addEventListener('click', function () {
         const inputFile = document.createElement('input');
         inputFile.type = 'file';
         inputFile.accept = 'image/*';
         inputFile.multiple = true; // Permitir múltiples archivos
 
-        inputFile.addEventListener('change', function(event) {
+        inputFile.addEventListener('change', function (event) {
             const files = event.target.files;
 
             if (files.length > 0) {
-                // Mostrar las imágenes seleccionadas
+                // Mostrar las imágenes seleccionadas y guardarlas para subirlas
                 Array.from(files).forEach(file => {
                     const reader = new FileReader();
-                    reader.onload = function(e) {
+                    reader.onload = function (e) {
                         const img = document.createElement('img');
                         img.src = e.target.result;
                         img.alt = file.name;
                         img.classList.add('vehicle-image');
+                        img.file = file; // Asignar el archivo original al elemento img
+                        uploadedFiles.push(file); // Guardar el archivo en la lista
                         imageContainer.insertBefore(img, addImageWrapper); // Insertar las imágenes antes del icono
 
                         // Añadir el evento de confirmación para eliminar la imagen
-                        img.addEventListener('click', function() {
+                        img.addEventListener('click', function () {
                             const confirmDelete = confirm('¿Estás seguro de que deseas eliminar esta imagen?');
                             if (confirmDelete) {
                                 imageContainer.removeChild(img);
+                                const index = uploadedFiles.indexOf(file);
+                                if (index > -1) uploadedFiles.splice(index, 1); // Eliminar el archivo de la lista
                             }
                         });
                     };
@@ -498,8 +503,14 @@ function abrirModalCrearVehiculo(dniUsuarioActual) {
         const valid = validarCampos(form);
         if (!valid) return;
 
-        console.log("Formulario de creación enviado.");
-        await crearVehiculoYPublicacion(form, dniUsuarioActual);
+        // Subir imágenes al backend antes de crear el vehículo
+        const rutasImagenes = await subirImagenesAlBackend(uploadedFiles);
+
+        if (rutasImagenes) {
+            // Enviar el formulario junto con las rutas de las imágenes al backend
+            console.log("Formulario de creación enviado.");
+            await crearVehiculoYPublicacion(form, dniUsuarioActual, rutasImagenes);
+        }
     };
 
     form.addEventListener('keypress', (event) => {
@@ -511,8 +522,41 @@ function abrirModalCrearVehiculo(dniUsuarioActual) {
     $(createModal).modal('show');
 }
 
+// Función para subir imágenes al backend
+async function subirImagenesAlBackend(archivos) {
+    if (archivos.length === 0) {
+        alert("Por favor, selecciona al menos una imagen.");
+        return null;
+    }
+
+    const formData = new FormData();
+    archivos.forEach(file => {
+        formData.append('imagen', file);
+    });
+
+    try {
+        const response = await fetch(`${baseURL}/subir_imagen`, {
+            method: 'POST',
+            body: formData,
+        });
+
+        const result = await response.json();
+        if (response.ok) {
+            return result.rutas;
+        } else {
+            alert(`Error al subir imágenes.`);
+            return null;
+        }
+    } catch (error) {
+        console.error('Error al subir imágenes.');
+        return null;
+    }
+}
+
 // Función para crear un vehículo y luego una publicación
-async function crearVehiculoYPublicacion(form, dniUsuarioActual) {
+async function crearVehiculoYPublicacion(form, dniUsuarioActual, rutasImagenes) {
+    const rutasCompletas = rutasImagenes.map(ruta => `${baseURL}/${ruta}`);
+
     const vehicleData = {
         matricula: form.elements['matricula'].value,
         marca: form.elements['marca'].value,
@@ -526,10 +570,7 @@ async function crearVehiculoYPublicacion(form, dniUsuarioActual) {
         ciudad: form.elements['ciudad'].value,
         combustible: form.elements['combustible'].value,
         transmision: form.elements['transmision'].value,
-        imagenes: [
-            "images/cars/ford-fiesta_1.jpg",
-            "images/cars/ford-fiesta_2.jpg"
-        ]
+        imagenes: rutasCompletas || []
     };
 
     console.log("Datos del vehículo a enviar:", vehicleData);
@@ -543,7 +584,7 @@ async function crearVehiculoYPublicacion(form, dniUsuarioActual) {
         });
             
         if (!createVehicleResponse.ok) {
-            // Manejo de errores específicos basado la respuesta de la API
+            // Manejo de errores específicos basado en la respuesta de la API
             if (createVehicleResponse.status === 409) {
                 alert("Ya existe una publicación para el vehículo con la matrícula introducida");
             } else {
@@ -558,6 +599,7 @@ async function crearVehiculoYPublicacion(form, dniUsuarioActual) {
         location.reload();
     
     } catch (error) {
+        console.error('Error al crear el vehículo:', error);
         alert('No se pudo crear el vehículo. Inténtalo de nuevo más tarde.');
     }    
 }
