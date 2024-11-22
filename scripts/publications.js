@@ -461,7 +461,7 @@ function abrirModalCrearVehiculo(dniUsuarioActual) {
         const inputFile = document.createElement('input');
         inputFile.type = 'file';
         inputFile.accept = 'image/*';
-        inputFile.multiple = true; // Permitir múltiples archivos
+        inputFile.multiple = true;
 
         inputFile.addEventListener('change', function (event) {
             const files = event.target.files;
@@ -469,27 +469,38 @@ function abrirModalCrearVehiculo(dniUsuarioActual) {
             if (files.length > 0) {
                 // Mostrar las imágenes seleccionadas y guardarlas para subirlas
                 Array.from(files).forEach(file => {
+                    // Obtener la fecha y hora actual
+                    const currentDate = new Date();
+                    const formattedDate = currentDate.toISOString().replace(/[:.-]/g, ''); // Formato: yyyyMMddHHmmss
+
+                    // Crear un nuevo nombre para el archivo con la fecha y hora
+                    const newFileName = `${formattedDate}_${file.name}`;
+
+                    // Crear un nuevo objeto File con el nuevo nombre
+                    const renamedFile = new File([file], newFileName, { type: file.type });
+
+                    // Mostrar la imagen y agregarla a la lista de archivos subidos
                     const reader = new FileReader();
                     reader.onload = function (e) {
                         const img = document.createElement('img');
                         img.src = e.target.result;
-                        img.alt = file.name;
+                        img.alt = renamedFile.name; // Usar el nuevo nombre
                         img.classList.add('vehicle-image');
-                        img.file = file; // Asignar el archivo original al elemento img
-                        uploadedFiles.push(file); // Guardar el archivo en la lista
-                        imageContainer.insertBefore(img, addImageWrapper); // Insertar las imágenes antes del icono
+                        img.file = renamedFile;
+                        uploadedFiles.push(renamedFile);
+                        imageContainer.insertBefore(img, addImageWrapper);
 
                         // Añadir el evento de confirmación para eliminar la imagen
                         img.addEventListener('click', function () {
                             const confirmDelete = confirm('¿Estás seguro de que deseas eliminar esta imagen?');
                             if (confirmDelete) {
                                 imageContainer.removeChild(img);
-                                const index = uploadedFiles.indexOf(file);
-                                if (index > -1) uploadedFiles.splice(index, 1); // Eliminar el archivo de la lista
+                                const index = uploadedFiles.indexOf(renamedFile);
+                                if (index > -1) uploadedFiles.splice(index, 1);
                             }
                         });
                     };
-                    reader.readAsDataURL(file);
+                    reader.readAsDataURL(renamedFile);
                 });
             }
         });
@@ -722,7 +733,7 @@ function abrirModalEditar(vehicle) {
             }
         });
 
-        inputFile.click(); // Abrir el selector de archivos
+        inputFile.click();
     });
 
     // Validación y envío del formulario
@@ -799,7 +810,7 @@ async function actualizarDatosVehiculo(form, vehicle) {
 }
 
 async function abrirModalEliminar(publicacion, vehiculo) {
-    const confirmacion = confirm(`¿Estás seguro de que quieres eliminar el vehículo ${vehiculo.modelo}?`);
+    const confirmacion = confirm(`¿Estás seguro de que quieres eliminar el vehículo ${vehiculo.marca} ${vehiculo.modelo}?`);
     if (confirmacion) {
         try {
             const responsePublicacion = await fetch(`${baseURL}/publicaciones/${publicacion._id}`, {
