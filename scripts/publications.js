@@ -434,6 +434,65 @@ function crearTarjetaVacia(dniUsuarioActual) {
     return vehicleCol;
 }
 
+// Función para subir imágenes al backend
+async function subirImagenesBackend(archivos) {
+    if (archivos.length === 0) {
+        alert("Por favor, selecciona al menos una imagen.");
+        return null;
+    }
+
+    const formData = new FormData();
+    archivos.forEach(file => {
+        formData.append('imagen', file);
+    });
+
+    try {
+        const response = await fetch(`${baseURL}/subir_imagen`, {
+            method: 'POST',
+            body: formData,
+        });
+
+        const result = await response.json();
+        if (response.ok) {
+            return result.rutas;
+        } else {
+            alert(`Error al subir imágenes.`);
+            return null;
+        }
+    } catch (error) {
+        console.error('Error al subir imágenes.');
+        return null;
+    }
+}
+
+// Función para eliminar imágenes en el backend
+async function eliminarImagenesBackend(imagenes) {
+    try {
+        const response = await fetch(`${baseURL}/eliminar_imagenes`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ imagenes })
+        });
+
+        console.log("Respuesta de eliminación de imágenes:", response);
+
+        if (!response.ok) {
+            const errorResponse = await response.json();
+            console.error("Error al eliminar imágenes:", errorResponse);
+            throw new Error(`Error al eliminar imágenes: ${errorResponse.message || response.statusText}`);
+        }
+
+        const result = await response.json();
+        console.log("Imágenes eliminadas con éxito:", result);
+        return result;
+    } catch (error) {
+        console.error("Error al eliminar imágenes en el backend:", error);
+        throw error;
+    }
+}
+
 // Función para abrir el modal de creación de vehículo y manejar el envío del formulario
 function abrirModalCrearVehiculo(dniUsuarioActual) {
     const createModal = document.getElementById('createVehicleModal');
@@ -515,7 +574,7 @@ function abrirModalCrearVehiculo(dniUsuarioActual) {
         if (!valid) return;
 
         // Subir imágenes al backend antes de crear el vehículo
-        const rutasImagenes = await subirImagenesAlBackend(uploadedFiles);
+        const rutasImagenes = await subirImagenesBackend(uploadedFiles);
 
         if (rutasImagenes) {
             // Enviar el formulario junto con las rutas de las imágenes al backend
@@ -531,37 +590,6 @@ function abrirModalCrearVehiculo(dniUsuarioActual) {
     });
 
     $(createModal).modal('show');
-}
-
-// Función para subir imágenes al backend
-async function subirImagenesAlBackend(archivos) {
-    if (archivos.length === 0) {
-        alert("Por favor, selecciona al menos una imagen.");
-        return null;
-    }
-
-    const formData = new FormData();
-    archivos.forEach(file => {
-        formData.append('imagen', file);
-    });
-
-    try {
-        const response = await fetch(`${baseURL}/subir_imagen`, {
-            method: 'POST',
-            body: formData,
-        });
-
-        const result = await response.json();
-        if (response.ok) {
-            return result.rutas;
-        } else {
-            alert(`Error al subir imágenes.`);
-            return null;
-        }
-    } catch (error) {
-        console.error('Error al subir imágenes.');
-        return null;
-    }
 }
 
 // Función para crear un vehículo y luego una publicación
@@ -648,10 +676,15 @@ async function crearPublicacion(matriculaVehiculo, dniUsuarioActual) {
     }
 }
 
-// Función para abrir el modal de editar
 function abrirModalEditar(vehicle) {
     const editModal = document.getElementById('editVehicleModal');
     const form = editModal.querySelector('form');
+    const imageContainer = editModal.querySelector('.image-container');
+    const uploadedFiles = [];
+    const imagesToDelete = [];
+
+    // Inicializar vehicle.imagenes como un array vacío si es undefined o null
+    vehicle.imagenes = vehicle.imagenes && Array.isArray(vehicle.imagenes) ? vehicle.imagenes : [];
 
     // Rellenar los campos del formulario con los datos del vehículo
     form.elements['marca'].value = vehicle.marca;
@@ -666,31 +699,38 @@ function abrirModalEditar(vehicle) {
     form.elements['combustible'].value = vehicle.combustible;
     form.elements['transmision'].value = vehicle.transmision;
 
-    const imageContainer = editModal.querySelector('.image-container');
-    imageContainer.innerHTML = ''; // Limpiar el contenedor de imágenes antes de agregar las nuevas
+    imageContainer.innerHTML = '';
 
-    // Añadir las imágenes del vehículo existente
-    vehicle.imagenes.forEach(src => {
-        const img = document.createElement('img');
-        img.src = src;
-        img.alt = `${vehicle.marca} ${vehicle.modelo}`;
-        img.classList.add('vehicle-image');
-        imageContainer.appendChild(img);
+    // Asegurarse de que la lista de imágenes esté correctamente inicializada antes de recorrerla
+    if (vehicle.imagenes.length > 0) {
+        vehicle.imagenes.forEach(src => {
+            const img = document.createElement('img');
+            img.src = src;
+            img.alt = `${vehicle.marca} ${vehicle.modelo}`;
+            img.classList.add('vehicle-image');
+            imageContainer.appendChild(img);
 
-        // Evento para eliminar imagen
-        img.addEventListener('click', function() {
-            const confirmDelete = confirm('¿Estás seguro de que deseas eliminar esta imagen?');
-        
-            if (confirmDelete) {
-                imageContainer.removeChild(img);
-            }
+            // Evento para eliminar imagen
+            img.addEventListener('click', function () {
+                const confirmDelete = confirm('¿Estás seguro de que deseas eliminar esta imagen?');
+                if (confirmDelete) {
+                    imageContainer.removeChild(img);
+                    // Eliminar la imagen de vehicle.imagenes
+                    const index = vehicle.imagenes.indexOf(src);
+                    if (index > -1) {
+                        vehicle.imagenes.splice(index, 1); // Eliminarla del array
+                    }
+                    // Agregar la imagen a la lista de imágenes a eliminar
+                    imagesToDelete.push(src);
+                }
+            });
         });
-    });
+    }
 
     // Crear el icono de "plus" para añadir imágenes
     const addImageWrapper = document.createElement('div');
     addImageWrapper.classList.add('vehicle-image', 'add-btn');
-    
+
     const addIcon = document.createElement('i');
     addIcon.classList.add('fas', 'fa-plus', 'fa-2x');
     addIcon.style.color = 'green';
@@ -699,40 +739,56 @@ function abrirModalEditar(vehicle) {
     imageContainer.appendChild(addImageWrapper);
 
     // Evento para abrir el selector de imágenes cuando se hace clic en el icono "plus"
-    addImageWrapper.addEventListener('click', function() {
+    addImageWrapper.addEventListener('click', function () {
         const inputFile = document.createElement('input');
         inputFile.type = 'file';
         inputFile.accept = 'image/*';
-        inputFile.multiple = true; // Permitir múltiples archivos
+        inputFile.multiple = true;
 
-        inputFile.addEventListener('change', function(event) {
+        inputFile.addEventListener('change', function (event) {
             const files = event.target.files;
 
             if (files.length > 0) {
-                // Mostrar las imágenes seleccionadas
+                // Mostrar las imágenes seleccionadas y guardarlas para subirlas
                 Array.from(files).forEach(file => {
+                    // Obtener la fecha y hora actual
+                    const currentDate = new Date();
+                    const formattedDate = currentDate.toISOString().replace(/[:.-]/g, ''); // Formato: yyyyMMddHHmmss
+
+                    // Crear un nuevo nombre para el archivo con la fecha y hora
+                    const newFileName = `${formattedDate}_${file.name}`;
+
+                    // Crear un nuevo objeto File con el nuevo nombre
+                    const renamedFile = new File([file], newFileName, { type: file.type });
+
+                    // Mostrar la imagen y agregarla a la lista de archivos subidos
                     const reader = new FileReader();
-                    reader.onload = function(e) {
+                    reader.onload = function (e) {
                         const img = document.createElement('img');
                         img.src = e.target.result;
-                        img.alt = file.name;
+                        img.alt = renamedFile.name; // Usar el nuevo nombre
                         img.classList.add('vehicle-image');
+                        img.file = renamedFile;
+                        uploadedFiles.push(renamedFile);
                         imageContainer.insertBefore(img, addImageWrapper);
 
-                        // Evento para eliminar imagen
-                        img.addEventListener('click', function() {
+                        // Añadir el evento de confirmación para eliminar la imagen
+                        img.addEventListener('click', function () {
                             const confirmDelete = confirm('¿Estás seguro de que deseas eliminar esta imagen?');
-                        
                             if (confirmDelete) {
                                 imageContainer.removeChild(img);
+                                imagesToDelete.push(renamedFile.name);
+                                const index = uploadedFiles.indexOf(renamedFile);
+                                if (index > -1) uploadedFiles.splice(index, 1);
                             }
                         });
                     };
-                    reader.readAsDataURL(file);
+                    reader.readAsDataURL(renamedFile);
                 });
             }
         });
 
+        // Abrir el selector de archivos
         inputFile.click();
     });
 
@@ -743,8 +799,26 @@ function abrirModalEditar(vehicle) {
         const valid = validarCampos(form);
         if (!valid) return;
 
-        console.log("Formulario de edición enviado.");
-        await actualizarDatosVehiculo(form, vehicle);
+        // Verificar si se ha agregado o eliminado alguna imagen
+        if (uploadedFiles.length > 0 || imagesToDelete.length > 0) {
+            // Subir las nuevas imágenes al backend si es necesario
+            const rutasImagenes = uploadedFiles.length > 0 ? await subirImagenesBackend(uploadedFiles) : [];
+
+            if (rutasImagenes.length > 0 || imagesToDelete.length > 0) {
+                // Eliminar las imágenes del backend que fueron marcadas para eliminación
+                if (imagesToDelete.length > 0) {
+                    await eliminarImagenesBackend(imagesToDelete);
+                }
+
+                // Enviar los datos de la edición junto con las rutas de las imágenes al backend
+                console.log("Formulario de edición enviado.");
+                await actualizarDatosVehiculo(form, vehicle, rutasImagenes.length > 0 ? rutasImagenes : undefined);
+            }
+        } else {
+            console.log("No se han añadido ni eliminado imágenes.");
+            // Si no hay cambios en las imágenes, solo actualizar los datos del vehículo
+            await actualizarDatosVehiculo(form, vehicle);
+        }
     };
 
     // Prevenir que el formulario se envíe al presionar Enter
@@ -759,7 +833,13 @@ function abrirModalEditar(vehicle) {
     editModal.dataset.vehicleId = vehicle.matricula;
 }
 
-async function actualizarDatosVehiculo(form, vehicle) {
+async function actualizarDatosVehiculo(form, vehicle, rutasImagenes) {
+    // Verificar que rutasImagenes sea un array válido antes de hacer map
+    const rutasValidas = Array.isArray(rutasImagenes) ? rutasImagenes : [];
+
+    // Asegúrate de que todas las rutas de imagen tengan el baseURL
+    const rutasConBaseURL = rutasValidas.map(ruta => `${baseURL}/${ruta}`);
+
     const newValues = {
         matricula: vehicle.matricula,
         marca: form.elements['marca'].value,
@@ -773,20 +853,13 @@ async function actualizarDatosVehiculo(form, vehicle) {
         ciudad: form.elements['ciudad'].value,
         combustible: form.elements['combustible'].value,
         transmision: form.elements['transmision'].value,
-        imagenes: vehicle.imagenes
+        imagenes: [...vehicle.imagenes, ...rutasConBaseURL] // Agregar las nuevas imágenes al vehículo
     };
 
-    const isChanged = Object.keys(newValues).some(key => newValues[key] !== vehicle[key]);
-    if (!isChanged) {
-        alert("No se han realizado cambios en los datos del vehículo.");
-        console.log("No hay cambios para actualizar.");
-        return;
-    }
+    console.log("Datos del vehículo a actualizar:", newValues);
 
     try {
-        console.log(`Actualizando datos para el vehículo con matrícula: ${vehicle.matricula}`);
-
-        const updateResponse = await fetch(`${baseURL}/vehiculos/${vehicle.matricula}`, {
+        const updateVehicleResponse = await fetch(`${baseURL}/vehiculos/${vehicle.matricula}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -794,18 +867,17 @@ async function actualizarDatosVehiculo(form, vehicle) {
             body: JSON.stringify(newValues)
         });
 
-        if (!updateResponse.ok) {
-            const errorResponse = await updateResponse.json();
-            throw new Error(`Error al actualizar el vehículo: ${errorResponse.message || updateResponse.statusText}`);
+        if (!updateVehicleResponse.ok) {
+            alert("No se han realizado cambios en el vehículo.");
+            return;
         }
 
-        const updatedData = await updateResponse.json();
-        console.log("Vehículo actualizado con éxito:", updatedData);
-        
         $('#editVehicleModal').modal('hide');
         location.reload();
-    } catch (updateError) {
-        console.error("Error al actualizar el vehículo:", updateError);
+
+    } catch (error) {
+        console.error('Error al actualizar el vehículo:', error);
+        alert('No se pudo actualizar el vehículo. Inténtalo de nuevo más tarde.');
     }
 }
 
@@ -813,18 +885,23 @@ async function abrirModalEliminar(publicacion, vehiculo) {
     const confirmacion = confirm(`¿Estás seguro de que quieres eliminar el vehículo ${vehiculo.marca} ${vehiculo.modelo}?`);
     if (confirmacion) {
         try {
+            // Eliminar publicación
             const responsePublicacion = await fetch(`${baseURL}/publicaciones/${publicacion._id}`, {
                 method: 'DELETE'
             });
-            if (!responsePublicacion.ok) throw new Error('Error al eliminar la publicación')
+            if (!responsePublicacion.ok) throw new Error('Error al eliminar la publicación');
+
+            // Eliminar vehículo
             const responseVehiculo = await fetch(`${baseURL}/vehiculos/${vehiculo.matricula}`, {
                 method: 'DELETE'
             });
             if (!responseVehiculo.ok) throw new Error('Error al eliminar el vehículo');
 
-            console.log('Publicación eliminada:', responsePublicacion);
-            console.log('Vehículo eliminado:', responseVehiculo);
+            // Eliminar imágenes asociadas usando eliminarImagenesBackend
+            const resultadoImagenes = await eliminarImagenesBackend(vehiculo.imagenes);
+            console.log("Eliminación de imágenes:", resultadoImagenes);
 
+            // Recargar la página
             location.reload();
         } catch (error) {
             console.error('Error al eliminar el vehículo:', error);

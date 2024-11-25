@@ -1,6 +1,6 @@
 // Variables globales
-let baseURL = "https://plsmotors-api.onrender.com"
-//let baseURL = "http://127.0.0.1:5000"
+//let baseURL = "https://plsmotors-api.onrender.com"
+let baseURL = "http://127.0.0.1:5000"
 
 // Cargar el head
 fetch('head.html')
