@@ -171,59 +171,49 @@
                     <form id="editVehicleForm">
                         <div class="image-container"></div>
                         <div class="form-group">
-                            <label for="marca">Marca</label>
-                            <input type="text" class="form-control" name="marca" id="editMarca" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="modelo">Modelo</label>
-                            <input type="text" class="form-control" name="modelo" id="editModelo" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="motor">Motor</label>
-                            <input type="text" class="form-control" name="motor" id="editMotor" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="ano">Año</label>
-                            <input type="number" class="form-control" name="ano" id="editAno" required>
-                        </div>
-                        <div class="form-group">
                             <label for="kilometraje">Kilometraje</label>
                             <input type="number" class="form-control" name="kilometraje" id="editKilometraje" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="cv">Caballos</label>
-                            <input type="number" class="form-control" name="cv" id="editCv" required>
                         </div>
                         <div class="form-group">
                             <label for="precio">Precio</label>
                             <input type="number" class="form-control" name="precio" id="editPrecio" required>
                         </div>
-                        <div class="form-group">
-                            <label for="provincia">Provincia</label>
-                            <input type="text" class="form-control" name="provincia" id="editProvincia" required>
+                        <div class="form-group" style="display: flex; align-items: center; margin-bottom: 15px;">
+                            <label for="marca" style="margin-right: 10px; width: 150px;">Marca</label>
+                            <input type="text" class="form-control" name="marca" id="editMarca" readonly required style="flex: 1;">
                         </div>
-                        <div class="form-group">
-                            <label for="ciudad">Ciudad</label>
-                            <input type="text" class="form-control" name="ciudad" id="editCiudad" required>
+                        <div class="form-group" style="display: flex; align-items: center; margin-bottom: 15px;">
+                            <label for="modelo" style="margin-right: 10px; width: 150px;">Modelo</label>
+                            <input type="text" class="form-control" name="modelo" id="editModelo" readonly required style="flex: 1;">
                         </div>
-                        <div class="form-group">
-                            <label for="combustible">Combustible</label>
-                            <select id="editCombustible" class="form-control" name="combustible" required>
-                                <option value="">Selecciona un combustible</option>
-                                <option value="Gasolina">Gasolina</option>
-                                <option value="Diésel">Diésel</option>
-                                <option value="Eléctrico">Eléctrico</option>
-                                <option value="Híbrido">Híbrido</option>
-                            </select>
+                        <div class="form-group" style="display: flex; align-items: center; margin-bottom: 15px;">
+                            <label for="motor" style="margin-right: 10px; width: 150px;">Motor</label>
+                            <input type="text" class="form-control" name="motor" id="editMotor" readonly required style="flex: 1;">
                         </div>
-                        <div class="form-group">
-                            <label for="transmision">Transmisión</label>
-                            <select id="editTransmision" class="form-control" name="transmision" required>
-                                <option value="">Selecciona una transmisión</option>
-                                <option value="Manual">Manual</option>
-                                <option value="Automático">Automático</option>
-                            </select>
+                        <div class="form-group" style="display: flex; align-items: center; margin-bottom: 15px;">
+                            <label for="ano" style="margin-right: 10px; width: 150px;">Año</label>
+                            <input type="number" class="form-control" name="ano" id="editAno" readonly required style="flex: 1;">
                         </div>
+                        <div class="form-group" style="display: flex; align-items: center; margin-bottom: 15px;">
+                            <label for="cv" style="margin-right: 10px; width: 150px;">Caballos</label>
+                            <input type="number" class="form-control" name="cv" id="editCv" readonly required style="flex: 1;">
+                        </div>
+                        <div class="form-group" style="display: flex; align-items: center; margin-bottom: 15px;">
+                            <label for="provincia" style="margin-right: 10px; width: 150px;">Provincia</label>
+                            <input type="text" class="form-control" name="provincia" id="editProvincia" readonly required style="flex: 1;">
+                        </div>
+                        <div class="form-group" style="display: flex; align-items: center; margin-bottom: 15px;">
+                            <label for="ciudad" style="margin-right: 10px; width: 150px;">Ciudad</label>
+                            <input type="text" class="form-control" name="ciudad" id="editCiudad" readonly required style="flex: 1;">
+                        </div>
+                        <div class="form-group" style="display: flex; align-items: center; margin-bottom: 15px;">
+                            <label for="combustible" style="margin-right: 10px; width: 150px;">Combustible</label>
+                            <input type="text" class="form-control" id="editCombustible" name="combustible" readonly required style="flex: 1;">
+                        </div>
+                        <div class="form-group" style="display: flex; align-items: center; margin-bottom: 15px;">
+                            <label for="transmision" style="margin-right: 10px; width: 150px;">Transmisión</label>
+                            <input type="text" class="form-control" id="editTransmision" name="transmision" readonly required style="flex: 1;">
+                        </div>                        
                         <div class="form-group text-center">
                             <button type="submit" class="btn btn-primary animate-btn">Guardar Cambios</button>
                         </div>

@@ -853,7 +853,7 @@ async function actualizarDatosVehiculo(form, vehicle, rutasImagenes) {
         ciudad: form.elements['ciudad'].value,
         combustible: form.elements['combustible'].value,
         transmision: form.elements['transmision'].value,
-        imagenes: [...vehicle.imagenes, ...rutasConBaseURL] // Agregar las nuevas imágenes al vehículo
+        imagenes: [...vehicle.imagenes, ...rutasConBaseURL]
     };
 
     console.log("Datos del vehículo a actualizar:", newValues);
