@@ -14,7 +14,10 @@
         <div class="container">
             <form class="form-horizontal" id="registroForm">
                 <!-- Campo para email -->
-                <div class="form-group">
+                <div class="form-group" id="usuarioInfo"></div><br>
+
+                <!-- Campo para email -->
+                <div class="form-group" id="emailGroup">
                     <label for="email" class="control-label" style="color: black;"><b>Email:</b></label>
                     <div class="text-field">
                         <input type="email" class="form-control" id="email" placeholder="Ingrese su correo electrónico">
@@ -22,7 +25,7 @@
                 </div>
 
                 <!-- Campo para contraseña -->
-                <div class="form-group">
+                <div class="form-group" id="passwordGroup">
                     <label for="password" class="control-label" style="color: black;"><b>Contraseña:</b></label>
                     <div class="text-field">
                         <input type="password" class="form-control" id="password" placeholder="Ingrese su contraseña">
@@ -67,6 +70,7 @@
                         <button type="button" class="btn btn-primary" id="btnRegistro" style="display: none"><b>Registrarse</b></button>
                         <button type="button" class="btn btn-primary" id="btnRegistrar"><b>Registrarse</b></button>
                         <button type="button" class="btn btn-primary" id="btnIniciarSesion"><b>Iniciar Sesión</b></button>
+                        <button type="button" class="btn btn-danger" id="btnCerrarSesion" style="display: none;"><b>Cerrar Sesión</b></button>
                     </div>
                 </div>
             </form>
@@ -84,5 +88,5 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script src="scripts/script.js"></script>
 <script src="scripts/users.js"></script>
-
+</body>
 </html>

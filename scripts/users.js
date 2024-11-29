@@ -1,9 +1,34 @@
 $(document).ready(function() {
+    // Ocultar elementos al inicio
     $("#confirmPasswordGroup").hide();
     $("#nombreGroup").hide();
     $("#telefonoGroup").hide();
     $("#dniGroup").hide();
-    
+    $("#btnVolver").hide();
+    $("#btnRegistro").hide();
+    $("#btnCerrarSesion").hide();
+
+    // Obtener el valor de la cookie (si existe)
+    let dniUsuarioActual = obtenerCookie("dniUsuarioActual");
+
+    // Si ya hay un DNI en la cookie, mostramos la información del usuario
+    if (dniUsuarioActual) {
+        mostrarInformacionUsuario(dniUsuarioActual);
+    }
+
+    // Al hacer clic en "Iniciar sesión"
+    $("#btnIniciarSesion").on('click', function() {
+        dniUsuarioActual = "23456789C";
+        console.log("Nuevo DNI del usuario actual: " + dniUsuarioActual);
+
+        // Guardar el DNI en la cookie
+        guardarCookie("dniUsuarioActual", dniUsuarioActual, 7);
+
+        // Mostrar la información del usuario
+        mostrarInformacionUsuario(dniUsuarioActual);
+    });
+
+    // Al hacer clic en "Registrar"
     $("#btnRegistrar").on('click', function() {
         $("#confirmPasswordGroup").show();
         $("#nombreGroup").show();
@@ -15,6 +40,7 @@ $(document).ready(function() {
         $("#btnRegistro").show();
     });
 
+    // Al hacer clic en "Volver"
     $("#btnVolver").on('click', function() {
         $("#confirmPasswordGroup").hide();
         $("#nombreGroup").hide();
@@ -32,7 +58,27 @@ $(document).ready(function() {
         $("#nombre").val('');
         $("#telefono").val('');
     });
+
+    // Al hacer clic en "Cerrar sesión"
+    $("#btnCerrarSesion").on('click', function() {
+        // Eliminar la cookie del DNI
+        eliminarCookie("dniUsuarioActual");
+        // Recargar la página para reflejar el cambio
+        location.reload();
+    });
 });
+
+// Función para mostrar la información del usuario
+function mostrarInformacionUsuario(dniUsuarioActual) {
+    $("#usuarioInfo").text("Estás logueado como usuario con DNI " + dniUsuarioActual); 
+    $("#btnCerrarSesion").show();
+
+    // Ocultar los botones de inicio de sesión y registro
+    $("#emailGroup").hide();
+    $("#passwordGroup").hide();
+    $("#btnIniciarSesion").hide();
+    $("#btnRegistrar").hide();
+}
 
 // Función para validar campos
 function validarCampos() {

@@ -1,6 +1,32 @@
 // Variables globales
 let baseURL = "https://plsmotors-api.onrender.com"
 //let baseURL = "http://127.0.0.1:5000"
+let dniUsuarioActual = obtenerCookie("dniUsuarioActual");
+
+function obtenerCookie(nombre) {
+    let nombreCookie = nombre + "=";
+    let decodificado = decodeURIComponent(document.cookie);
+    let listaCookies = decodificado.split(';');
+
+    for (let i = 0; i < listaCookies.length; i++) {
+        let cookie = listaCookies[i].trim();
+        if (cookie.indexOf(nombreCookie) == 0) {
+            return cookie.substring(nombreCookie.length, cookie.length);
+        }
+    }
+    return "";
+}
+
+function guardarCookie(nombre, valor, dias) {
+    let fecha = new Date();
+    fecha.setTime(fecha.getTime() + (dias * 24 * 60 * 60 * 1000));  // Expiración en días
+    let expiracion = "expires=" + fecha.toUTCString();
+    document.cookie = nombre + "=" + valor + ";" + expiracion + ";path=/";
+}
+
+function eliminarCookie(nombre) {
+    document.cookie = nombre + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/";
+}
 
 // Cargar el head
 fetch('head.html')

@@ -2,8 +2,7 @@
 let publicaciones = [];
 let publicacionesFiltradas = [];
 let matriculasFavoritas = [];
-const dniUsuarioActual = "23456789C";
-const publicacionesPorPagina = 9;
+let publicacionesPorPagina = 9;
 let paginaActual = 1;
 
 // Mostrar el indicador de carga
@@ -266,6 +265,10 @@ function cambiarFavorito(event, dniUsuarioActual, matriculaVehiculo) {
     event.stopPropagation();
     event.preventDefault();
 
+    if (dniUsuarioActual == "") {
+        window.location.href = "login.html";
+    }
+
     const favoriteButton = event.target.closest('.favorite-btn');
     const heartIconEmpty = favoriteButton.querySelector('.far');
     const heartIconFilledRed = favoriteButton.querySelector('.fas[style*="color: red"]');
@@ -495,6 +498,10 @@ async function eliminarImagenesBackend(imagenes) {
 
 // Función para abrir el modal de creación de vehículo y manejar el envío del formulario
 function abrirModalCrearVehiculo(dniUsuarioActual) {
+    if (dniUsuarioActual == "") {
+        window.location.href = "login.html";
+    }
+
     const createModal = document.getElementById('createVehicleModal');
     const form = createModal.querySelector('form');
     const imageContainer = createModal.querySelector('.image-container');
