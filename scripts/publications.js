@@ -889,7 +889,8 @@ async function abrirModalEliminar(publicacion, vehiculo) {
         top: 0; 
         left: 0; 
         width: 100%; 
-        height: 30%; 
+        height: 270px; 
+        margin-top: 200px;
         display: flex; 
         align-items: center; 
         justify-content: center; 
@@ -905,8 +906,8 @@ async function abrirModalEliminar(publicacion, vehiculo) {
             width: 300px;
         ">
             <h3 style="margin-bottom: 15px;">Confirmar eliminación</h3>
-            <p id="modal-mensaje" style="margin-bottom: 40px;">
-                ¿Estás seguro de que quieres eliminar el vehículo ${vehiculo.marca} ${vehiculo.modelo}?
+            <p id="modal-mensaje" style="margin-bottom: 20px;">
+                ¿Estás seguro de que quieres eliminar la publicación para el vehículo ${vehiculo.marca} ${vehiculo.modelo}?
             </p>
             <div class="modal-botones" style="display: flex; justify-content: space-between;">
                 <button id="btn-cancelar" style="
