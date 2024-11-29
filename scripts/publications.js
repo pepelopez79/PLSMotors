@@ -882,68 +882,85 @@ async function actualizarDatosVehiculo(form, vehicle, rutasImagenes) {
 }
 
 async function abrirModalEliminar(publicacion, vehiculo) {
-    const modal = document.createElement('div');
-    modal.id = 'modal-eliminar';
-    modal.style = `
+    const modalFondo = document.createElement('div');
+    modalFondo.id = 'modal-fondo';
+    modalFondo.style = `
         position: fixed; 
         top: 0; 
         left: 0; 
         width: 100%; 
-        height: 270px; 
-        margin-top: 200px;
-        display: flex; 
-        align-items: center; 
-        justify-content: center; 
+        height: 100%; 
+        background: rgba(0, 0, 0, 0.5); 
+        z-index: 999;
+    `;
+
+    const modal = document.createElement('div');
+    modal.id = 'modal-eliminar';
+    modal.style = `
+        position: fixed; 
+        top: 50%; 
+        left: 50%; 
+        transform: translate(-50%, -50%);
+        width: 300px; 
+        background: white; 
+        padding: 20px; 
+        border-radius: 8px; 
+        text-align: center; 
         z-index: 1000;
     `;
 
     modal.innerHTML = `
-        <div class="modal-content" style="
-            background: white; 
-            padding: 20px; 
-            border-radius: 8px; 
-            text-align: center; 
-            width: 300px;
-        ">
-            <h3 style="margin-bottom: 15px;">Confirmar eliminación</h3>
-            <p id="modal-mensaje" style="margin-bottom: 20px;">
-                ¿Estás seguro de que quieres eliminar la publicación para el vehículo ${vehiculo.marca} ${vehiculo.modelo}?
-            </p>
-            <div class="modal-botones" style="display: flex; justify-content: space-between;">
-                <button id="btn-cancelar" style="
-                    padding: 10px 20px;
-                    background: gray; 
-                    color: white; 
-                    border: none; 
-                    border-radius: 5px; 
-                    cursor: pointer;
-                ">Cancelar</button>
-                <button id="btn-confirmar" style="
-                    padding: 10px 20px; 
-                    background: red; 
-                    color: white; 
-                    border: none; 
-                    border-radius: 5px; 
-                    cursor: pointer;
-                ">Eliminar</button>
-            </div>
+        <h3 style="margin-bottom: 15px;">Confirmar eliminación</h3>
+        <p id="modal-mensaje" style="margin-bottom: 20px;">
+            ¿Estás seguro de que quieres eliminar la publicación del vehículo ${vehiculo.marca} ${vehiculo.modelo} con matrícula ${vehiculo.matricula}?
+        </p>
+        <div class="modal-botones" style="display: flex; justify-content: space-between;">
+            <button id="btn-cancelar" style="
+                padding: 10px 20px;
+                background: gray; 
+                color: white; 
+                border: none; 
+                border-radius: 5px; 
+                cursor: pointer;
+            ">Cancelar</button>
+            <button id="btn-confirmar" style="
+                padding: 10px 20px; 
+                background: red; 
+                color: white; 
+                border: none; 
+                border-radius: 5px; 
+                cursor: pointer;
+            ">Eliminar</button>
         </div>
     `;
 
+    // Añadir el fondo y el modal al DOM
+    document.body.appendChild(modalFondo);
     document.body.appendChild(modal);
 
     const confirmacion = await new Promise((resolve) => {
         const btnCancelar = document.getElementById('btn-cancelar');
         const btnConfirmar = document.getElementById('btn-confirmar');
 
+        // Cerrar el modal al hacer clic en cancelar
         btnCancelar.onclick = () => {
+            document.body.removeChild(modalFondo);
             document.body.removeChild(modal);
             resolve(false);
         };
 
+        // Cerrar el modal al hacer clic en confirmar
         btnConfirmar.onclick = () => {
+            document.body.removeChild(modalFondo);
             document.body.removeChild(modal);
             resolve(true);
+        };
+
+        // Cerrar el modal si se hace clic fuera de él
+        modalFondo.onclick = () => {
+            document.body.removeChild(modalFondo);
+            document.body.removeChild(modal);
+            resolve(false);
         };
     });
 
