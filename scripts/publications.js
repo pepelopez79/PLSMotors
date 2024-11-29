@@ -882,7 +882,70 @@ async function actualizarDatosVehiculo(form, vehicle, rutasImagenes) {
 }
 
 async function abrirModalEliminar(publicacion, vehiculo) {
-    const confirmacion = confirm(`¿Estás seguro de que quieres eliminar el vehículo ${vehiculo.marca} ${vehiculo.modelo}?`);
+    const modal = document.createElement('div');
+    modal.id = 'modal-eliminar';
+    modal.style = `
+        position: fixed; 
+        top: 0; 
+        left: 0; 
+        width: 100%; 
+        height: 30%; 
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        z-index: 1000;
+    `;
+
+    modal.innerHTML = `
+        <div class="modal-content" style="
+            background: white; 
+            padding: 20px; 
+            border-radius: 8px; 
+            text-align: center; 
+            width: 300px;
+        ">
+            <h3 style="margin-bottom: 15px;">Confirmar eliminación</h3>
+            <p id="modal-mensaje" style="margin-bottom: 40px;">
+                ¿Estás seguro de que quieres eliminar el vehículo ${vehiculo.marca} ${vehiculo.modelo}?
+            </p>
+            <div class="modal-botones" style="display: flex; justify-content: space-between;">
+                <button id="btn-cancelar" style="
+                    padding: 10px 20px;
+                    background: gray; 
+                    color: white; 
+                    border: none; 
+                    border-radius: 5px; 
+                    cursor: pointer;
+                ">Cancelar</button>
+                <button id="btn-confirmar" style="
+                    padding: 10px 20px; 
+                    background: red; 
+                    color: white; 
+                    border: none; 
+                    border-radius: 5px; 
+                    cursor: pointer;
+                ">Eliminar</button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    const confirmacion = await new Promise((resolve) => {
+        const btnCancelar = document.getElementById('btn-cancelar');
+        const btnConfirmar = document.getElementById('btn-confirmar');
+
+        btnCancelar.onclick = () => {
+            document.body.removeChild(modal);
+            resolve(false);
+        };
+
+        btnConfirmar.onclick = () => {
+            document.body.removeChild(modal);
+            resolve(true);
+        };
+    });
+
     if (confirmacion) {
         try {
             // Eliminar publicación
