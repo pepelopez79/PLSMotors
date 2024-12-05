@@ -706,6 +706,14 @@ async function crearVehiculoYPublicacion(form, dniUsuarioActual, rutasImagenes) 
 
 // Función para crear una publicación
 async function crearPublicacion(matriculaVehiculo, dniUsuarioActual) {
+    const token = obtenerCookie('token');
+
+    if (!token) {
+        console.error('Token no encontrado');
+        window.location.href = "login.html";
+        return null;
+    }
+
     const publicacionData = {
         dni_usuario: dniUsuarioActual,
         matricula_vehiculo: matriculaVehiculo
@@ -717,7 +725,8 @@ async function crearPublicacion(matriculaVehiculo, dniUsuarioActual) {
         const createPublicationResponse = await fetch(`${baseURL}/publicaciones`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify(publicacionData)
         });
@@ -1033,7 +1042,10 @@ async function abrirModalEliminar(publicacion, vehiculo) {
         try {
             // Eliminar publicación
             const responsePublicacion = await fetch(`${baseURL}/publicaciones/${publicacion._id}`, {
-                method: 'DELETE'
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
             });
             if (!responsePublicacion.ok) throw new Error('Error al eliminar la publicación');
     
