@@ -58,7 +58,7 @@ document.getElementById('search-btn').addEventListener('click', async function()
         const data = await response.json();
         publicacionesFiltradas = data.data;
     } catch (error) {
-        alert('Error al cargar las publicaciones filtradas');
+        console.log('Error al cargar las publicaciones filtradas');
     }
 
     mostrarPublicaciones(true)

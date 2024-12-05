@@ -18,14 +18,43 @@ $(document).ready(function() {
 
     // Al hacer clic en "Iniciar sesión"
     $("#btnIniciarSesion").on('click', function() {
-        dniUsuarioActual = "23456789C";
-        console.log("Nuevo DNI del usuario actual: " + dniUsuarioActual);
+        const email = $("#email").val();
+        const contrasena = $("#password").val();
 
-        // Guardar el DNI en la cookie
-        guardarCookie("dniUsuarioActual", dniUsuarioActual, 7);
+        if (!email || !contrasena) {
+            alert("Por favor ingrese el correo electrónico y la contraseña.");
+            return;
+        }
 
-        // Mostrar la información del usuario
-        mostrarInformacionUsuario(dniUsuarioActual);
+        // Realizar la solicitud de inicio de sesión
+        fetch(`${baseURL}/login`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email: email, contrasena: contrasena })
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(data => {
+                    alert(data.error || "Error desconocido");
+                    throw new Error(data.error || 'Error en el inicio de sesión');
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Inicio de sesión exitoso:', data);
+            guardarCookie("token", data.token, 48); 
+            dniUsuarioActual = "23456789C";
+            guardarCookie("dniUsuarioActual", data.dni, 7);
+
+            // Mostrar la información del usuario
+            mostrarInformacionUsuario(dniUsuarioActual);
+        })
+        .catch(error => {
+            console.error('Error al iniciar sesión:', error);
+        });
     });
 
     // Al hacer clic en "Registrar"
@@ -63,6 +92,7 @@ $(document).ready(function() {
     $("#btnCerrarSesion").on('click', function() {
         // Eliminar la cookie del DNI
         eliminarCookie("dniUsuarioActual");
+        eliminarCookie("token");
         // Recargar la página para reflejar el cambio
         location.reload();
     });

@@ -1,6 +1,6 @@
 // Variables globales
-let baseURL = "https://plsmotors-api.onrender.com"
-//let baseURL = "http://127.0.0.1:5000"
+//let baseURL = "https://plsmotors-api.onrender.com"
+let baseURL = "http://127.0.0.1:5000"
 let dniUsuarioActual = obtenerCookie("dniUsuarioActual");
 
 function obtenerCookie(nombre) {
@@ -19,7 +19,7 @@ function obtenerCookie(nombre) {
 
 function guardarCookie(nombre, valor, dias) {
     let fecha = new Date();
-    fecha.setTime(fecha.getTime() + (dias * 24 * 60 * 60 * 1000));  // Expiración en días
+    fecha.setTime(fecha.getTime() + (dias * 24 * 60 * 60 * 1000));
     let expiracion = "expires=" + fecha.toUTCString();
     document.cookie = nombre + "=" + valor + ";" + expiracion + ";path=/";
 }
@@ -69,7 +69,6 @@ $('#volverArriba').on('click', function(e) {
 });
 
 $(document).ready(function() {
-    // Leer Más/Menos
     $('#toggle-info').on('click', function(event) {
         event.preventDefault();
         const sinopsis = $('.sinopsis');

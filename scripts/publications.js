@@ -533,30 +533,25 @@ function abrirModalCrearVehiculo(dniUsuarioActual) {
             const files = event.target.files;
 
             if (files.length > 0) {
-                // Mostrar las imágenes seleccionadas y guardarlas para subirlas
                 Array.from(files).forEach(file => {
-                    // Obtener la fecha y hora actual
+                    // Fecha y hora actual
                     const currentDate = new Date();
-                    const formattedDate = currentDate.toISOString().replace(/[:.-]/g, ''); // Formato: yyyyMMddHHmmss
+                    const formattedDate = currentDate.toISOString().replace(/[:.-]/g, '');
 
-                    // Crear un nuevo nombre para el archivo con la fecha y hora
                     const newFileName = `${formattedDate}_${file.name}`;
 
-                    // Crear un nuevo objeto File con el nuevo nombre
                     const renamedFile = new File([file], newFileName, { type: file.type });
 
-                    // Mostrar la imagen y agregarla a la lista de archivos subidos
                     const reader = new FileReader();
                     reader.onload = function (e) {
                         const img = document.createElement('img');
                         img.src = e.target.result;
-                        img.alt = renamedFile.name; // Usar el nuevo nombre
+                        img.alt = renamedFile.name;
                         img.classList.add('vehicle-image');
                         img.file = renamedFile;
                         uploadedFiles.push(renamedFile);
                         imageContainer.insertBefore(img, addImageWrapper);
 
-                        // Añadir el evento de confirmación para eliminar la imagen
                         img.addEventListener('click', function () {
                             const confirmDelete = confirm('¿Estás seguro de que deseas eliminar esta imagen?');
                             if (confirmDelete) {
