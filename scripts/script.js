@@ -28,6 +28,22 @@ function eliminarCookie(nombre) {
     document.cookie = nombre + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/";
 }
 
+function obtenerCookie(nombre) {
+    let nombreEQ = nombre + "=";
+    let partes = document.cookie.split(';');
+    
+    for (let i = 0; i < partes.length; i++) {
+        let c = partes[i];
+        while (c.charAt(0) === ' ') {
+            c = c.substring(1, c.length);
+        }
+        if (c.indexOf(nombreEQ) === 0) {
+            return c.substring(nombreEQ.length, c.length);
+        }
+    }
+    return null;
+}
+
 // Cargar el head
 fetch('head.html')
     .then(response => response.text())

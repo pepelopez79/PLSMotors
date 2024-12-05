@@ -32,8 +32,23 @@ async function obtenerPublicacionesAPI() {
 // Obtener publicaciones favoritas de la API
 async function obtenerPublicacionesFavoritasAPI() {
     mostrarCargando();
+    
+    let token = obtenerCookie('token'); 
+
+    if (!token) {
+        console.error('Token no encontrado');
+        return;
+    }
+
     try {
-        const response = await fetch(`${baseURL}/favoritos/${dniUsuarioActual}`);
+        const response = await fetch(`${baseURL}/favoritos/${dniUsuarioActual}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
         if (!response.ok) throw new Error('Error en la red');
 
         const data = await response.json();
@@ -181,7 +196,7 @@ function mostrarMisPublicaciones(dniUsuarioActual) {
         const addCard = crearTarjetaVacia(dniUsuarioActual);
         contenedor.appendChild(addCard);
         
-        return; // Termina la función aquí
+        return;
     }
 
     const promises = publicacionesUsuario.map(publicacion =>
@@ -265,10 +280,6 @@ function cambiarFavorito(event, dniUsuarioActual, matriculaVehiculo) {
     event.stopPropagation();
     event.preventDefault();
 
-    if (dniUsuarioActual == "") {
-        window.location.href = "login.html";
-    }
-
     const favoriteButton = event.target.closest('.favorite-btn');
     const heartIconEmpty = favoriteButton.querySelector('.far');
     const heartIconFilledRed = favoriteButton.querySelector('.fas[style*="color: red"]');
@@ -305,14 +316,23 @@ function cambiarFavorito(event, dniUsuarioActual, matriculaVehiculo) {
 }
 
 function agregarFavorito(dniUsuario, matriculaVehiculo) {
+    let token = obtenerCookie('token'); 
+
+    if (!token) {
+        console.error('Token no encontrado');
+        window.location.href = "login.html";
+        return;
+    }
+
     fetch(`${baseURL}/favoritos`, {
         method: 'POST',
         headers: {
-        'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
-        dni_usuario: dniUsuario,
-        matricula_vehiculo: matriculaVehiculo
+            dni_usuario: dniUsuario,
+            matricula_vehiculo: matriculaVehiculo
         })
     })
     .then(response => response.json())
@@ -325,24 +345,32 @@ function agregarFavorito(dniUsuario, matriculaVehiculo) {
 }
   
 function eliminarFavorito(dniUsuario, matriculaVehiculo) {
+    let token = obtenerCookie('token'); 
+
+    if (!token) {
+        console.error('Token no encontrado');
+        return;
+    }
+
     fetch(`${baseURL}/favoritos`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        dni_usuario: dniUsuario,
-        matricula_vehiculo: matriculaVehiculo
-      })
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+            dni_usuario: dniUsuario,
+            matricula_vehiculo: matriculaVehiculo
+        })
     })
     .then(response => response.json())
     .then(data => {
-      console.log('Favorito eliminado:', data);
+        console.log('Favorito eliminado:', data);
     })
     .catch(error => {
-      console.error('Error al eliminar favorito:', error);
+        console.error('Error al eliminar favorito:', error);
     });
-}  
+}
 
 // Función para crear tarjeta de vehículo
 function crearTarjetaVehiculo(vehiculo, usuario, dniUsuarioActual, isFavorite) {
@@ -498,8 +526,12 @@ async function eliminarImagenesBackend(imagenes) {
 
 // Función para abrir el modal de creación de vehículo y manejar el envío del formulario
 function abrirModalCrearVehiculo(dniUsuarioActual) {
-    if (dniUsuarioActual == "") {
+    let token = obtenerCookie('token'); 
+
+    if (!token) {
+        console.error('Token no encontrado');
         window.location.href = "login.html";
+        return;
     }
 
     const createModal = document.getElementById('createVehicleModal');
@@ -703,7 +735,6 @@ function abrirModalEditar(vehicle) {
 
     imageContainer.innerHTML = '';
 
-    // Asegurarse de que la lista de imágenes esté correctamente inicializada antes de recorrerla
     if (vehicle.imagenes.length > 0) {
         vehicle.imagenes.forEach(src => {
             const img = document.createElement('img');
@@ -712,17 +743,14 @@ function abrirModalEditar(vehicle) {
             img.classList.add('vehicle-image');
             imageContainer.appendChild(img);
 
-            // Evento para eliminar imagen
             img.addEventListener('click', function () {
                 const confirmDelete = confirm('¿Estás seguro de que deseas eliminar esta imagen?');
                 if (confirmDelete) {
                     imageContainer.removeChild(img);
-                    // Eliminar la imagen de vehicle.imagenes
                     const index = vehicle.imagenes.indexOf(src);
                     if (index > -1) {
-                        vehicle.imagenes.splice(index, 1); // Eliminarla del array
+                        vehicle.imagenes.splice(index, 1);
                     }
-                    // Agregar la imagen a la lista de imágenes a eliminar
                     imagesToDelete.push(src);
                 }
             });
@@ -740,7 +768,6 @@ function abrirModalEditar(vehicle) {
     addImageWrapper.appendChild(addIcon);
     imageContainer.appendChild(addImageWrapper);
 
-    // Evento para abrir el selector de imágenes cuando se hace clic en el icono "plus"
     addImageWrapper.addEventListener('click', function () {
         const inputFile = document.createElement('input');
         inputFile.type = 'file';
@@ -751,30 +778,24 @@ function abrirModalEditar(vehicle) {
             const files = event.target.files;
 
             if (files.length > 0) {
-                // Mostrar las imágenes seleccionadas y guardarlas para subirlas
                 Array.from(files).forEach(file => {
-                    // Obtener la fecha y hora actual
                     const currentDate = new Date();
-                    const formattedDate = currentDate.toISOString().replace(/[:.-]/g, ''); // Formato: yyyyMMddHHmmss
+                    const formattedDate = currentDate.toISOString().replace(/[:.-]/g, '');
 
-                    // Crear un nuevo nombre para el archivo con la fecha y hora
                     const newFileName = `${formattedDate}_${file.name}`;
 
-                    // Crear un nuevo objeto File con el nuevo nombre
                     const renamedFile = new File([file], newFileName, { type: file.type });
 
-                    // Mostrar la imagen y agregarla a la lista de archivos subidos
                     const reader = new FileReader();
                     reader.onload = function (e) {
                         const img = document.createElement('img');
                         img.src = e.target.result;
-                        img.alt = renamedFile.name; // Usar el nuevo nombre
+                        img.alt = renamedFile.name;
                         img.classList.add('vehicle-image');
                         img.file = renamedFile;
                         uploadedFiles.push(renamedFile);
                         imageContainer.insertBefore(img, addImageWrapper);
 
-                        // Añadir el evento de confirmación para eliminar la imagen
                         img.addEventListener('click', function () {
                             const confirmDelete = confirm('¿Estás seguro de que deseas eliminar esta imagen?');
                             if (confirmDelete) {
