@@ -646,6 +646,14 @@ function abrirModalCrearVehiculo(dniUsuarioActual) {
 
 // Función para crear un vehículo y luego una publicación
 async function crearVehiculoYPublicacion(form, dniUsuarioActual, rutasImagenes) {
+    const token = obtenerCookie('token');
+
+    if (!token) {
+        console.error('Token no encontrado');
+        window.location.href = "login.html";
+        return null;
+    }
+
     const rutasCompletas = rutasImagenes.map(ruta => `${baseURL}/${ruta}`);
 
     const vehicleData = {
@@ -669,7 +677,8 @@ async function crearVehiculoYPublicacion(form, dniUsuarioActual, rutasImagenes) 
         const createVehicleResponse = await fetch(`${baseURL}/vehiculos`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify(vehicleData)
         });
@@ -875,10 +884,16 @@ function abrirModalEditar(vehicle) {
 }
 
 async function actualizarDatosVehiculo(form, vehicle, rutasImagenes) {
-    // Verificar que rutasImagenes sea un array válido antes de hacer map
+    const token = obtenerCookie('token');
+
+    if (!token) {
+        console.error('Token no encontrado');
+        window.location.href = "login.html";
+        return null;
+    }
+
     const rutasValidas = Array.isArray(rutasImagenes) ? rutasImagenes : [];
 
-    // Asegúrate de que todas las rutas de imagen tengan el baseURL
     const rutasConBaseURL = rutasValidas.map(ruta => `${baseURL}/${ruta}`);
 
     const newValues = {
@@ -903,7 +918,8 @@ async function actualizarDatosVehiculo(form, vehicle, rutasImagenes) {
         const updateVehicleResponse = await fetch(`${baseURL}/vehiculos/${vehicle.matricula}`, {
             method: 'PUT',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify(newValues)
         });
@@ -1006,31 +1022,40 @@ async function abrirModalEliminar(publicacion, vehiculo) {
     });
 
     if (confirmacion) {
+        const token = obtenerCookie('token');
+    
+        if (!token) {
+            console.error('Token no encontrado');
+            window.location.href = "login.html";
+            return null;
+        }
+    
         try {
             // Eliminar publicación
             const responsePublicacion = await fetch(`${baseURL}/publicaciones/${publicacion._id}`, {
                 method: 'DELETE'
             });
             if (!responsePublicacion.ok) throw new Error('Error al eliminar la publicación');
-
+    
             // Eliminar vehículo
             const responseVehiculo = await fetch(`${baseURL}/vehiculos/${vehiculo.matricula}`, {
-                method: 'DELETE'
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
             });
             if (!responseVehiculo.ok) throw new Error('Error al eliminar el vehículo');
-
-            // Eliminar imágenes asociadas usando eliminarImagenesBackend
+    
             const resultadoImagenes = await eliminarImagenesBackend(vehiculo.imagenes);
             console.log("Eliminación de imágenes:", resultadoImagenes);
-
-            // Recargar la página
+    
             location.reload();
         } catch (error) {
             console.error('Error al eliminar el vehículo:', error);
             alert('No se pudo eliminar la publicación. Inténtalo de nuevo más tarde.');
         }
     }
-}
+}    
 
 // Función para validar los campos del modal
 function validarCampos(form, isCreating) {
