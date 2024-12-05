@@ -465,8 +465,15 @@ function crearTarjetaVacia(dniUsuarioActual) {
     return vehicleCol;
 }
 
-// Función para subir imágenes al backend
 async function subirImagenesBackend(archivos) {
+    const token = obtenerCookie('token');
+
+    if (!token) {
+        console.error('Token no encontrado');
+        window.location.href = "login.html";
+        return null;
+    }
+
     if (archivos.length === 0) {
         alert("Por favor, selecciona al menos una imagen.");
         return null;
@@ -480,34 +487,45 @@ async function subirImagenesBackend(archivos) {
     try {
         const response = await fetch(`${baseURL}/subir_imagen`, {
             method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
             body: formData,
         });
 
         const result = await response.json();
         if (response.ok) {
+            console.log('Imágenes subidas con éxito:', result.rutas);
             return result.rutas;
         } else {
-            alert(`Error al subir imágenes.`);
+            console.error(`Error al subir imágenes: ${result.mensaje || 'desconocido'}`);
+            alert("Error al subir imágenes.");
             return null;
         }
     } catch (error) {
-        console.error('Error al subir imágenes.');
+        console.error('Error al subir imágenes:', error);
         return null;
     }
 }
 
-// Función para eliminar imágenes en el backend
 async function eliminarImagenesBackend(imagenes) {
+    const token = obtenerCookie('token');
+
+    if (!token) {
+        console.error('Token no encontrado');
+        window.location.href = "login.html";
+        return null;
+    }
+
     try {
         const response = await fetch(`${baseURL}/eliminar_imagenes`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify({ imagenes })
         });
-
-        console.log("Respuesta de eliminación de imágenes:", response);
 
         if (!response.ok) {
             const errorResponse = await response.json();
