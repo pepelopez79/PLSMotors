@@ -74,6 +74,7 @@ async function obtenerDatosAdicionales(matricula, dni) {
         if (!vehiculoResponse.ok || !usuarioResponse.ok) throw new Error('Error en los datos adicionales');
         const vehiculo = await vehiculoResponse.json();
         const usuario = await usuarioResponse.json();
+        console.log(usuario.data)
         return { vehiculo: vehiculo.data, usuario: usuario.data };
     } catch (error) {
         console.error('Error al obtener datos adicionales:', error);
