@@ -186,12 +186,12 @@ function mostrarMisPublicaciones(dniUsuarioActual) {
     const contenedor = document.querySelector('#mis-publicaciones .container');
     contenedor.innerHTML = '';
 
-    let admin = obtenerCookie("admin");
+    let admin = obtenerCookie("admin") === "true";
 
     // No filtrar en caso de ser admin
-    const publicacionesUsuario = (admin) 
-    ? publicaciones
-    : publicaciones.filter(pub => pub.dni_usuario === dniUsuarioActual);
+    const publicacionesUsuario = admin 
+        ? publicaciones 
+        : publicaciones.filter(pub => pub.dni_usuario === dniUsuarioActual);    
 
     if (publicacionesUsuario.length === 0) {
         const mensaje = document.createElement('p');

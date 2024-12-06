@@ -81,6 +81,36 @@
         </div>
     </section>
 
+    <!-- Modal para editar perfil -->
+    <div id="modal-editar-perfil" style="display:none;">
+        <!-- Fondo oscuro -->
+        <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 999;"></div>
+        
+        <!-- Contenido del modal -->
+        <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border-radius: 8px; width: 400px; z-index: 1000;">
+            <h3 class="text-center"><strong>Editar Perfil</strong></h3>
+            <label for="editNombre">Nombre:</label>
+            <input type="text" id="editNombre" class="form-control" required><br>
+
+            <label for="editEmail">Email:</label>
+            <input type="email" id="editEmail" class="form-control" required><br>
+
+            <label for="editTelefono">Teléfono:</label>
+            <input type="text" id="editTelefono" class="form-control" required><br>
+
+            <label for="editContrasena">Nueva Contraseña(opcional):</label>
+            <input type="password" id="editContrasena" class="form-control"><br>
+
+            <label for="editConfirmarContrasena">Confirmar Contraseña(opcional):</label>
+            <input type="password" id="editConfirmarContrasena" class="form-control"><br>
+
+            <div style="display: flex; justify-content: space-between; margin-top: 10px;">
+                <button id="btnCancelarEdicion" class="btn btn-primary" style="background: gray; color: white; border: none; border-radius: 5px;">Cancelar</button>
+                <button id="btnGuardarEdicion" class="btn btn-primary" style="padding: 10px 20px; color: white; border: none; border-radius: 5px;">Guardar</button>
+            </div>
+        </div>
+    </div>
+    
 <!-- Footer -->
 <footer>
     <div id="footer"></div>

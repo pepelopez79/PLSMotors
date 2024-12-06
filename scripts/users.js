@@ -100,7 +100,7 @@ $(document).ready(function() {
         location.reload();
     });
 
-  // Al hacer clic en "Borrar Cuenta"
+    // Al hacer clic en "Borrar Cuenta"
     $("#btnBorrarCuenta").on('click', async function() {
         const token = obtenerCookie("token");
 
@@ -215,8 +215,125 @@ $(document).ready(function() {
 
     // Al hacer clic en "Editar Perfil"
     $("#btnEditarPerfil").on('click', function() {
-        location.reload();
+        // Obtener la información del usuario actual
+        const dniUsuarioActual = obtenerCookie("dniUsuarioActual");
+        if (!dniUsuarioActual) {
+            alert("No se pudo obtener el DNI del usuario.");
+            return;
+        }
+
+        const token = obtenerCookie("token");
+
+        // Mostrar el modal de edición
+        const modal = $("#modal-editar-perfil");
+        modal.show();
+
+        // Obtener los datos del perfil del usuario
+        fetch(`${baseURL}/perfil/${dniUsuarioActual}`, {
+            method: "GET",
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            const usuario = data.data;
+            // Prellenar los campos del modal con la información del usuario
+            $("#editNombre").val(usuario.nombre);
+            $("#editEmail").val(usuario.email);
+            $("#editTelefono").val(usuario.telefono);
+        })
+        .catch(error => {
+            console.error("Error al obtener la información del usuario:", error);
+            alert("Error al obtener la información del usuario.");
+        });
     });
+
+    // Al hacer clic en "Guardar" para actualizar los datos
+    $("#btnGuardarEdicion").on('click', function() {
+        const dniUsuarioActual = obtenerCookie("dniUsuarioActual");
+        const nombre = $("#editNombre").val();
+        const email = $("#editEmail").val();
+        const telefono = $("#editTelefono").val();
+        const contrasena = $("#editContrasena").val();
+        const confirmarContrasena = $("#editConfirmarContrasena").val();
+
+        if (!nombre || !email || !telefono) {
+            alert("Por favor complete todos los campos obligatorios.");
+            return;
+        }
+
+        // Validar formato de correo
+        const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (!emailRegex.test(email)) {
+            alert("Por favor ingrese un correo electrónico válido.");
+            return false;
+        }
+
+        // Validar formato de teléfono
+        const telefonoRegex = /^[679]{1}[0-9]{8}$/;
+        if (!telefonoRegex.test(telefono)) {
+            alert("Por favor ingrese un número de teléfono válido.");
+            return false;
+        }
+
+        if (contrasena && contrasena !== confirmarContrasena) {
+            alert("Las contraseñas no coinciden.");
+            return;
+        }
+
+        // Validar que la contraseña tenga al menos 8 caracteres, una mayúscula, una minúscula, un número y un signo de puntuación
+        const contrasenaRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[.\-,])[A-Za-z\d.\-,]{8,}$/;
+        if (contrasena && !contrasenaRegex.test(contrasena)) {
+            alert("La contraseña debe tener al menos 8 caracteres, incluir una mayúscula, una minúscula, un número y un signo de puntuación.");
+            return false;
+        }
+
+        const token = obtenerCookie("token");
+
+        const datosActualizar = {
+            nombre: nombre,
+            email: email,
+            telefono: telefono
+        };
+
+        if (contrasena) {
+            datosActualizar.contrasena = contrasena;
+        }
+
+        fetch(`${baseURL}/usuarios/${dniUsuarioActual}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(datosActualizar)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.mensaje && data.mensaje.includes("actualizado exitosamente")) {
+                location.reload();
+            } else {
+                alert("No se realizaron cambios en el perfil.");
+            }
+        })
+        .catch(error => {
+            alert("Error al actualizar el perfil.");
+        });
+    });
+
+    // Al hacer clic en "Cancelar", cerrar el modal
+    $("#btnCancelarEdicion").on('click', function() {
+        $("#modal-editar-perfil").hide();
+    });
+
+    // Cerrar el modal si se hace clic fuera de él
+    $(window).on('click', function(event) {
+        if (event.target.id === "modal-editar-perfil") {
+            $("#modal-editar-perfil").hide();
+        }
+    });  
 });
 
 // Función para mostrar la información del usuario
