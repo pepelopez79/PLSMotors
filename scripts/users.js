@@ -150,7 +150,7 @@ $(document).ready(function() {
             </p>
             <div class="modal-botones" style="display: flex; justify-content: space-between;">
                 <button id="btn-cancelar" style="padding: 10px 20px; background: gray; color: white; border: none; border-radius: 5px; cursor: pointer;">Cancelar</button>
-                <button id="btn-confirmar" style="padding: 10px 20px; background: red; color: white; border: none; border-radius: 5px; cursor: pointer;">Borrar</button>
+                <button id="btn-confirmar" style="padding: 10px 20px; background: red; color: white; border: none; border-radius: 5px; cursor: pointer;">Eliminar</button>
             </div>
         `;
 
