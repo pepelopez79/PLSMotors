@@ -7,6 +7,8 @@ $(document).ready(function() {
     $("#btnVolver").hide();
     $("#btnRegistro").hide();
     $("#btnCerrarSesion").hide();
+    $("#btnEditarPerfil").hide();
+    $("#btnBorrarCuenta").hide();
 
     // Obtener el valor de la cookie (si existe)
     let dniUsuarioActual = obtenerCookie("dniUsuarioActual");
@@ -45,13 +47,13 @@ $(document).ready(function() {
         })
         .then(data => {
             console.log('Inicio de sesión exitoso:', data);
-            guardarCookie("token", data.token, 48); 
-            dniUsuarioActual = "23456789C";
-            guardarCookie("dniUsuarioActual", data.dni, 7);
-
+            guardarCookie("token", data.token, 7);
+            dniUsuarioActual = data.dni; 
+            guardarCookie("dniUsuarioActual", dniUsuarioActual, 7);
+        
             // Mostrar la información del usuario
             mostrarInformacionUsuario(dniUsuarioActual);
-        })
+        })        
         .catch(error => {
             console.error('Error al iniciar sesión:', error);
         });
@@ -93,21 +95,90 @@ $(document).ready(function() {
         // Eliminar la cookie del DNI
         eliminarCookie("dniUsuarioActual");
         eliminarCookie("token");
+        eliminarCookie("admin");
         // Recargar la página para reflejar el cambio
+        location.reload();
+    });
+
+    // Al hacer clic en "Borrar Cuenta"
+    $("#btnBorrarCuenta").on('click', function() {
+        location.reload();
+    });
+
+    // Al hacer clic en "Editar Perfil"
+    $("#btnEditarPerfil").on('click', function() {
         location.reload();
     });
 });
 
 // Función para mostrar la información del usuario
 function mostrarInformacionUsuario(dniUsuarioActual) {
-    $("#usuarioInfo").text("Estás logueado como usuario con DNI " + dniUsuarioActual); 
-    $("#btnCerrarSesion").show();
+    const token = obtenerCookie("token");
 
-    // Ocultar los botones de inicio de sesión y registro
-    $("#emailGroup").hide();
-    $("#passwordGroup").hide();
-    $("#btnIniciarSesion").hide();
-    $("#btnRegistrar").hide();
+    if (!token) {
+        console.error("Token no disponible. Por favor, inicia sesión nuevamente.");
+        alert("Token no válido. Por favor, inicia sesión nuevamente.");
+        return;
+    }
+
+    const endpoint = `${baseURL}/perfil/${dniUsuarioActual}`;
+
+    fetch(endpoint, {
+        method: "GET",
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(data => {
+                alert(data.error || "Error al obtener la información del usuario.");
+                throw new Error(data.error || "Error desconocido.");
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        // Verificar que la respuesta contenga el objeto 'data'
+        if (!data || !data.data) {
+            console.error("Estructura de respuesta inesperada:", data);
+            alert("Error al procesar la información del usuario.");
+            return;
+        }
+
+        const usuario = data.data;
+
+        console.log("Información del usuario:", usuario);
+
+        guardarCookie("admin", usuario.admin, 7);
+
+        // Mostrar información del usuario
+        $("#usuarioInfo").html(`
+            <div class="container box" style="display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
+                <h3><strong>¡Bienvenido, ${usuario.nombre || "Usuario"}! ${usuario.admin ? `<p>(admin)</p>` : ""}</strong></h3><br>
+                <div style="margin-top: 10px; text-align: left;">
+                    <p><strong>DNI:</strong> ${usuario.dni || "No disponible"}</p>
+                    <p><strong>Email:</strong> ${usuario.email || "No disponible"}</p>
+                    <p><strong>Teléfono:</strong> ${usuario.telefono || "No disponible"}</p>
+                </div>
+            </div>
+        `);
+
+        $("#btnCerrarSesion").show();
+        $("#btnEditarPerfil").show();
+        $("#btnBorrarCuenta").show();
+
+        // Ocultar los botones de inicio de sesión y registro
+        $("#emailGroup").hide();
+        $("#passwordGroup").hide();
+        $("#btnIniciarSesion").hide();
+        $("#btnRegistrar").hide();
+    })
+    .catch(error => {
+        console.error("Error al obtener la información del usuario:", error);
+        alert("Error al obtener la información del usuario. Por favor, intenta nuevamente.");
+    });
 }
 
 // Función para validar campos

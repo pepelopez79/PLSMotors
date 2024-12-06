@@ -185,7 +185,13 @@ function mostrarPublicaciones(filtros = false) {
 function mostrarMisPublicaciones(dniUsuarioActual) {
     const contenedor = document.querySelector('#mis-publicaciones .container');
     contenedor.innerHTML = '';
-    const publicacionesUsuario = publicaciones.filter(pub => pub.dni_usuario === dniUsuarioActual);
+
+    let admin = obtenerCookie("admin");
+
+    // No filtrar en caso de ser admin
+    const publicacionesUsuario = (admin) 
+    ? publicaciones
+    : publicaciones.filter(pub => pub.dni_usuario === dniUsuarioActual);
 
     if (publicacionesUsuario.length === 0) {
         const mensaje = document.createElement('p');
@@ -193,7 +199,6 @@ function mostrarMisPublicaciones(dniUsuarioActual) {
         mensaje.textContent = 'No has publicado nada aún';
         contenedor.appendChild(mensaje);
         
-        // Aquí puedes añadir la tarjeta vacía solo si no hay publicaciones
         const addCard = crearTarjetaVacia(dniUsuarioActual);
         contenedor.appendChild(addCard);
         

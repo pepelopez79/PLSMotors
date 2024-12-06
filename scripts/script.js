@@ -3,20 +3,6 @@ let baseURL = "https://plsmotors-api.onrender.com"
 //let baseURL = "http://127.0.0.1:5000"
 let dniUsuarioActual = obtenerCookie("dniUsuarioActual");
 
-function obtenerCookie(nombre) {
-    let nombreCookie = nombre + "=";
-    let decodificado = decodeURIComponent(document.cookie);
-    let listaCookies = decodificado.split(';');
-
-    for (let i = 0; i < listaCookies.length; i++) {
-        let cookie = listaCookies[i].trim();
-        if (cookie.indexOf(nombreCookie) == 0) {
-            return cookie.substring(nombreCookie.length, cookie.length);
-        }
-    }
-    return "";
-}
-
 function guardarCookie(nombre, valor, dias) {
     let fecha = new Date();
     fecha.setTime(fecha.getTime() + (dias * 24 * 60 * 60 * 1000));
@@ -52,7 +38,14 @@ fetch('head.html')
 // Cargar el header
 fetch('header.html')
     .then(response => response.text())
-    .then(data => document.getElementById('header').innerHTML = data);
+    .then(data => {
+        document.getElementById('header').innerHTML = data;
+        
+        let esAdmin = obtenerCookie("admin");
+        if (esAdmin === "true") {
+            $("#misAnunciosLink").text("Administrar Anuncios");
+        }
+    });
 
 // Cargar el footer
 fetch('footer.html')
@@ -102,4 +95,4 @@ $(document).ready(function() {
 
         $(this).text(allVisible ? 'Leer más...' : 'Leer menos...');
     });
-}); 
+});
