@@ -102,7 +102,48 @@ $(document).ready(function() {
 
     // Al hacer clic en "Borrar Cuenta"
     $("#btnBorrarCuenta").on('click', function() {
-        location.reload();
+        const token = obtenerCookie("token");
+
+        if (!token) {
+            alert("Por favor, inicia sesión para borrar tu cuenta.");
+            return;
+        }
+
+        const dniUsuarioActual = obtenerCookie("dniUsuarioActual");
+        if (!dniUsuarioActual) {
+            alert("No se pudo obtener el DNI del usuario.");
+            return;
+        }
+
+        const confirmacion = confirm("¿Estás seguro de que quieres borrar tu cuenta? Esta acción es irreversible.");
+
+        if (confirmacion) {
+            fetch(`${baseURL}/usuarios/${dniUsuarioActual}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(data => {
+                        alert(data.error || "Error desconocido al borrar la cuenta.");
+                        throw new Error(data.error || "Error desconocido.");
+                    });
+                }
+                alert("¡Cuenta borrada con éxito!");
+                // Eliminar cookies y redirigir
+                eliminarCookie("dniUsuarioActual");
+                eliminarCookie("token");
+                eliminarCookie("admin");
+                location.reload();
+            })
+            .catch(error => {
+                console.error("Error al borrar la cuenta:", error);
+                alert("Hubo un error al intentar borrar tu cuenta. Intenta nuevamente.");
+            });
+        }
     });
 
     // Al hacer clic en "Editar Perfil"
