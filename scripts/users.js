@@ -100,8 +100,8 @@ $(document).ready(function() {
         location.reload();
     });
 
-    // Al hacer clic en "Borrar Cuenta"
-    $("#btnBorrarCuenta").on('click', function() {
+  // Al hacer clic en "Borrar Cuenta"
+    $("#btnBorrarCuenta").on('click', async function() {
         const token = obtenerCookie("token");
 
         if (!token) {
@@ -115,34 +115,101 @@ $(document).ready(function() {
             return;
         }
 
-        const confirmacion = confirm("¿Estás seguro de que quieres borrar tu cuenta? Esta acción es irreversible.");
+        // Crear fondo y modal
+        const modalFondo = document.createElement('div');
+        modalFondo.id = 'modal-fondo';
+        modalFondo.style = `
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: rgba(0, 0, 0, 0.5); 
+            z-index: 999;
+        `;
+
+        const modal = document.createElement('div');
+        modal.id = 'modal-eliminar';
+        modal.style = `
+            position: fixed; 
+            top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -50%);
+            width: 300px; 
+            background: white; 
+            padding: 20px; 
+            border-radius: 8px; 
+            text-align: center; 
+            z-index: 1000;
+        `;
+
+        modal.innerHTML = `
+            <h3 style="margin-bottom: 15px;">Confirmar eliminación</h3>
+            <p style="margin-bottom: 20px;">
+                ¿Estás seguro de que quieres borrar tu cuenta? Esta acción es irreversible.
+            </p>
+            <div class="modal-botones" style="display: flex; justify-content: space-between;">
+                <button id="btn-cancelar" style="padding: 10px 20px; background: gray; color: white; border: none; border-radius: 5px; cursor: pointer;">Cancelar</button>
+                <button id="btn-confirmar" style="padding: 10px 20px; background: red; color: white; border: none; border-radius: 5px; cursor: pointer;">Borrar</button>
+            </div>
+        `;
+
+        document.body.appendChild(modalFondo);
+        document.body.appendChild(modal);
+
+        const confirmacion = await new Promise((resolve) => {
+            const btnCancelar = document.getElementById('btn-cancelar');
+            const btnConfirmar = document.getElementById('btn-confirmar');
+
+            // Cerrar el modal al hacer clic en cancelar
+            btnCancelar.onclick = () => {
+                document.body.removeChild(modalFondo);
+                document.body.removeChild(modal);
+                resolve(false);
+            };
+
+            // Cerrar el modal al hacer clic en confirmar
+            btnConfirmar.onclick = () => {
+                document.body.removeChild(modalFondo);
+                document.body.removeChild(modal);
+                resolve(true);
+            };
+
+            // Cerrar el modal si se hace clic fuera de él
+            modalFondo.onclick = () => {
+                document.body.removeChild(modalFondo);
+                document.body.removeChild(modal);
+                resolve(false);
+            };
+        });
 
         if (confirmacion) {
-            fetch(`${baseURL}/usuarios/${dniUsuarioActual}`, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                }
-            })
-            .then(response => {
+            try {
+                // Hacer la petición para borrar la cuenta
+                const response = await fetch(`${baseURL}/usuarios/${dniUsuarioActual}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
                 if (!response.ok) {
-                    return response.json().then(data => {
-                        alert(data.error || "Error desconocido al borrar la cuenta.");
-                        throw new Error(data.error || "Error desconocido.");
-                    });
+                    const data = await response.json();
+                    alert(data.error || "Error desconocido al borrar la cuenta.");
+                    throw new Error(data.error || "Error desconocido.");
                 }
+
                 alert("¡Cuenta borrada con éxito!");
                 // Eliminar cookies y redirigir
                 eliminarCookie("dniUsuarioActual");
                 eliminarCookie("token");
                 eliminarCookie("admin");
                 location.reload();
-            })
-            .catch(error => {
+            } catch (error) {
                 console.error("Error al borrar la cuenta:", error);
                 alert("Hubo un error al intentar borrar tu cuenta. Intenta nuevamente.");
-            });
+            }
         }
     });
 
